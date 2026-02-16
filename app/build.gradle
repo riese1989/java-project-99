@@ -32,3 +32,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+sonar {
+    properties {
+        property "sonar.projectKey", "riese1989_java-project-99"
+        property "sonar.organization", "riese1989"
+    }
+}
