@@ -20,7 +20,7 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         var adminEmail = "hexlet@example.com";
 
-        if (userRepository.findUsersByEmail(adminEmail).isEmpty()) {
+        if (userRepository.findUserByEmail(adminEmail).isEmpty()) {
             var admin = new User();
 
             admin.setEmail(adminEmail);

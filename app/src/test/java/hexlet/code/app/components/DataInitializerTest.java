@@ -30,12 +30,11 @@ class DataInitializerTest {
     void testAdminIsCreated() throws Exception {
         dataInitializer.run();
 
-        var users = userRepository.findUsersByEmail("hexlet@example.com");
+        var admin = userRepository.findUserByEmail("hexlet@example.com");
 
-        assertThat(users).isNotEmpty();
-        assertEquals( 1, users.size());
+        assertThat(admin).isNotEmpty();
 
-        assertThat(users.get(0).getEmail()).isEqualTo("hexlet@example.com");
+        assertThat(admin.get().getEmail()).isEqualTo("hexlet@example.com");
     }
 
     @Test
@@ -49,12 +48,11 @@ class DataInitializerTest {
         userRepository.save(user);
         dataInitializer.run();
 
-        var users = userRepository.findUsersByEmail("hexlet@example.com");
+        var admin = userRepository.findUserByEmail("hexlet@example.com");
 
-        assertThat(users).isNotEmpty();
-        assertEquals( 1, users.size());
+        assertThat(admin).isNotEmpty();
 
-        assertThat(users.get(0).getEmail()).isEqualTo("hexlet@example.com");
+        assertThat(admin.get().getEmail()).isEqualTo("hexlet@example.com");
 
     }
 }

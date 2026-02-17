@@ -22,6 +22,13 @@ public class UserService {
         return convertToDto(user);
     }
 
+    public UserDto findByEmailAndPassword(String email, String password) {
+        var user = userRepository.findUsersByEmailAndPassword(email, password)
+                .orElseThrow(() -> new RuntimeException("User %s and current password not found".formatted(email)));
+
+        return convertToDto(user);
+    }
+
     public List<UserDto> findAll() {
         var users = userRepository.findAll();
 
