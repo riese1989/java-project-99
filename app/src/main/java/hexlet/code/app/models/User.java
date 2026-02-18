@@ -30,12 +30,12 @@ public class User {
     private String lastName;
 
     @Column(nullable = false, unique = true)
-    @NotNull
-    @Email
+    @NotNull(message = "Поле email должно быть заполненным")
+    @Email(message = "Некорректный формат email")
     private String email;
 
     @Column(nullable = false)
-    @NotNull
+    @NotNull(message = "Поле password должно быть заполненным")
     @Size(min = 3, message = "Пароль должен содержать минимум 3 символа")
     private String password;
 

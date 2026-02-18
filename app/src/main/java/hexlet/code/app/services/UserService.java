@@ -3,12 +3,15 @@ package hexlet.code.app.services;
 import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.models.User;
 import hexlet.code.app.repositories.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserService {
+@Slf4j
+public class UserService implements CommandLineRunner {
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -17,14 +20,14 @@ public class UserService {
 
 
     public UserDto findById(Long id) {
-        var user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User %s not found".formatted(id)));
+        var user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Пользователь с id %s не найден".formatted(id)));
 
         return convertToDto(user);
     }
 
     public UserDto findByEmailAndPassword(String email, String password) {
         var user = userRepository.findUsersByEmailAndPassword(email, password)
-                .orElseThrow(() -> new RuntimeException("User %s and current password not found".formatted(email)));
+                .orElseThrow(() -> new RuntimeException("Пользователь %s с указанным паролем не найден".formatted(email)));
 
         return convertToDto(user);
     }
@@ -48,7 +51,7 @@ public class UserService {
     public UserDto update(UserDto userDto) {
         var id = userDto.getId();
         var existingUser = userRepository.findById(userDto.getId()).orElseThrow(()
-                -> new RuntimeException("User %s not found".formatted(id)));
+                -> new RuntimeException("Пользователь с id %s не найден".formatted(id)));
 
         if (userDto.getFirstName() != null) {
             existingUser.setFirstName(userDto.getFirstName());
@@ -77,17 +80,14 @@ public class UserService {
             return null;
         }
 
-        var userDto = new UserDto();
-
-        userDto.setId(user.getId());
-        userDto.setFirstName(user.getFirstName());
-        userDto.setLastName(user.getLastName());
-        userDto.setEmail(user.getEmail());
-        userDto.setPassword(user.getPassword());
-        userDto.setCreatedAt(user.getCreatedAt());
-        userDto.setUpdatedAt(user.getUpdatedAt());
-
-        return userDto;
+        return UserDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt()).build();
     }
 
     public User convertToEntity(UserDto userDto) {
@@ -105,5 +105,21 @@ public class UserService {
         user.setCreatedAt(userDto.getCreatedAt());
 
         return user;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        var adminEmail = "hexlet@example.com";
+
+        if (userRepository.findUserByEmail(adminEmail).isEmpty()) {
+            var admin = new User();
+
+            admin.setEmail(adminEmail);
+            admin.setPassword("qwerty");
+
+            userRepository.save(admin);
+
+            log.info("Default admin user created");
+        }
     }
 }
