@@ -5,6 +5,8 @@ import hexlet.code.app.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable final Long id) {
         try {
@@ -42,6 +45,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         try {
@@ -56,6 +60,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UserDto> createUser(@RequestBody UserDto user) {
         try {
@@ -70,6 +75,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable final Long id, @RequestBody UserDto user) {
         try {
@@ -86,6 +92,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable final Long id) {
         try {
@@ -94,5 +101,11 @@ public class UserController {
         catch (Exception e) {
             log.error(e.getMessage());
         }
+    }
+
+    @GetMapping("/check-me")
+    public String check(Authentication auth) {
+        if (auth == null) return "Not authenticated";
+        return "User: " + auth.getName() + " Roles: " + auth.getAuthorities();
     }
 }

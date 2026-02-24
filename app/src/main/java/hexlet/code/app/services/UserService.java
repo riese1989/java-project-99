@@ -5,17 +5,23 @@ import hexlet.code.app.models.User;
 import hexlet.code.app.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @Slf4j
-public class UserService implements CommandLineRunner {
+public class UserService implements CommandLineRunner, UserDetailsService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -26,8 +32,13 @@ public class UserService implements CommandLineRunner {
     }
 
     public UserDto findByEmailAndPassword(String email, String password) {
-        var user = userRepository.findUsersByEmailAndPassword(email, password)
-                .orElseThrow(() -> new RuntimeException("Пользователь %s с указанным паролем не найден".formatted(email)));
+        var user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Пользователь %s не найден".formatted(email)));
+
+        // 2. Сравниваем сырой пароль из запроса с хешем из базы
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Неверный пароль для пользователя %s".formatted(email));
+        }
 
         return convertToDto(user);
     }
@@ -40,12 +51,16 @@ public class UserService implements CommandLineRunner {
 
     public UserDto create(UserDto userDto) {
         var user = convertToEntity(userDto);
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        if (user.getRole() == null) {
+            user.setRole("ROLE_USER");
+        }
+
         var savedUser = userRepository.save(user);
 
-        userDto.setId(savedUser.getId());
-        userDto.setCreatedAt(savedUser.getCreatedAt());
-
-        return userDto;
+        return convertToDto(savedUser);
     }
 
     public UserDto update(UserDto userDto) {
@@ -63,7 +78,7 @@ public class UserService implements CommandLineRunner {
             existingUser.setEmail(userDto.getEmail());
         }
         if (userDto.getPassword() != null) {
-            existingUser.setPassword(userDto.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
 
         var updatedUser = userRepository.save(existingUser);
@@ -108,18 +123,31 @@ public class UserService implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         var adminEmail = "hexlet@example.com";
 
         if (userRepository.findUserByEmail(adminEmail).isEmpty()) {
             var admin = new User();
 
             admin.setEmail(adminEmail);
-            admin.setPassword("qwerty");
+            admin.setPassword(passwordEncoder.encode("qwerty"));
+            admin.setRole("ROLE_ADMIN");
 
             userRepository.save(admin);
 
             log.info("Default admin user created");
         }
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        var user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .authorities(user.getRole()) // Убедитесь, что здесь передается "ROLE_ADMIN"
+                .build();
     }
 }

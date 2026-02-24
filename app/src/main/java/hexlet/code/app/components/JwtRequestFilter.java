@@ -1,5 +1,6 @@
 package hexlet.code.app.components;
 
+import hexlet.code.app.services.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,11 +17,11 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
 
-    public JwtRequestFilter(JwtUtils jwtUtils, @Lazy UserDetailsService userDetailsService) {
+    public JwtRequestFilter(JwtUtils jwtUtils, @Lazy UserService userService) {
         this.jwtUtils = jwtUtils;
-        this.userDetailsService = userDetailsService;
+        this.userService = userService;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             if (jwtUtils.validateToken(token)) {
                 var email = jwtUtils.getEmailFromToken(token);
-                var userDetails = userDetailsService.loadUserByUsername(email);
+                var userDetails = userService.loadUserByUsername(email);
                 var auth = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(auth);

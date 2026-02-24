@@ -39,6 +39,8 @@ public class User {
     @Size(min = 3, message = "Пароль должен содержать минимум 3 символа")
     private String password;
 
+    private String role;
+
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
