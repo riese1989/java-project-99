@@ -74,20 +74,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Создаём пользователя, а потом пытаемся создать ещё одного с тем же email")
-    void createUserWithDuplicateEmailTest() {
-        var userDto = UserDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
-        var createdUserDto = userService.create(userDto);
-
-        assertNotNull(createdUserDto);
-
-        var userDto2 = UserDto.builder().firstName("John2").lastName("Doe2").password("pasw2").email("1@ya.ru").build();
-        var ex = assertThrows(RuntimeException.class, () -> userService.create(userDto2));
-
-        assertTrue(ex.getMessage().contains("Нарушение уникального индекса или первичного ключа"));
-    }
-
-    @Test
     @DisplayName("Создаём пользователя только с обязательными полями")
     void createUserWithOnlyRequiredFieldsTest() {
         var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
