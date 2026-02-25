@@ -51,7 +51,10 @@ public class UserController {
         try {
             var users = userService.findAll();
 
-            return new ResponseEntity<>(users, OK);
+            return ResponseEntity.ok()
+                    .header("X-Total-Count", String.valueOf(users.size()))
+                    .header("Access-Control-Expose-Headers", "X-Total-Count")
+                    .body(users);
         }
         catch (Exception e) {
             log.error(e.getMessage());

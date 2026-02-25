@@ -25,12 +25,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            userService.findByEmailAndPassword(loginRequest.getEmail(), loginRequest.password());
+            userService.findByEmailAndPassword(loginRequest.getUsername(), loginRequest.password());
         } catch (AuthenticationException e) {
             return ResponseEntity.status(403).body("Invalid credentials");
         }
 
-        var token = jwtUtils.generateToken(loginRequest.getEmail());
+        var token = jwtUtils.generateToken(loginRequest.getUsername());
 
         return ResponseEntity.ok(token);
     }
