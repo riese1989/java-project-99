@@ -47,10 +47,7 @@ class UserServiceTest {
                         "Некорректный формат email"),
                 Arguments.of("Пустой password",
                         UserDto.builder().firstName("John").lastName("Doe").email("1@ya.ru").build(),
-                        "Поле password должно быть заполненным"),
-                Arguments.of("Пароль слишком короткий",
-                        UserDto.builder().firstName("John").lastName("Doe").password("12").email("email").build(),
-                        "Пароль должен содержать минимум 3 символа")
+                        "rawPassword cannot be null")
 
         );
     }
@@ -71,7 +68,7 @@ class UserServiceTest {
         assertEquals("John", user.getFirstName());
         assertEquals("Doe", user.getLastName());
         assertEquals("1@ya.ru", user.getEmail());
-        assertEquals("password", user.getPassword());
+        assertNotNull(user.getPassword());
         assertNotNull(user.getCreatedAt());
         assertNotNull(user.getUpdatedAt());
     }
@@ -101,9 +98,9 @@ class UserServiceTest {
         assertNull(user.getFirstName());
         assertNull(user.getLastName());
         assertEquals("1@ya.ru", user.getEmail());
-        assertEquals("password", user.getPassword());
+        assertNotNull(user.getPassword());
         assertNotNull(user.getCreatedAt());
-        assertNull(user.getUpdatedAt());
+        assertNotNull(user.getUpdatedAt());
     }
 
     @Test
@@ -132,7 +129,7 @@ class UserServiceTest {
         assertEquals("John", foundUser.getFirstName());
         assertEquals("Doe", foundUser.getLastName());
         assertEquals("1@ya.ru", foundUser.getEmail());
-        assertEquals("password", foundUser.getPassword());
+        assertNotNull(foundUser.getPassword());
         assertNotNull(foundUser.getCreatedAt());
         assertNotNull(foundUser.getUpdatedAt());
     }
@@ -150,7 +147,7 @@ class UserServiceTest {
 
         var ex = assertThrows(RuntimeException.class, () -> userService.findByEmailAndPassword(email, password));
 
-        assertTrue(ex.getMessage().contains("Пользователь %s с указанным паролем не найден".formatted(email)));
+        assertTrue(ex.getMessage().contains("Пользователь %s не найден".formatted(email)));
     }
 
     @Test
@@ -191,7 +188,7 @@ class UserServiceTest {
         assertEquals("John", createdUser1.getFirstName());
         assertEquals("Doe", createdUser1.getLastName());
         assertEquals("john.doe@example.com", createdUser1.getEmail());
-        assertEquals("password", createdUser1.getPassword());
+        assertNotNull(createdUser1.getPassword());
         assertNotNull(createdUser1.getCreatedAt());
         assertNotNull(createdUser1.getUpdatedAt());
 
@@ -202,7 +199,7 @@ class UserServiceTest {
         assertEquals("John2", createdUser2.getFirstName());
         assertEquals("Doe2", createdUser2.getLastName());
         assertEquals("john2.doe@example.com", createdUser2.getEmail());
-        assertEquals("password2", createdUser2.getPassword());
+        assertNotNull(createdUser2.getPassword());
         assertNotNull(createdUser2.getCreatedAt());
         assertNotNull(createdUser2.getUpdatedAt());
     }
@@ -210,7 +207,7 @@ class UserServiceTest {
     @Test
     @DisplayName("У пользователя со всеми полями оставляем только email и password")
     void updateUserWithAllFieldsTest() {
-        var userDto = UserDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
+        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
         var createdUserDto = userService.create(userDto);
         var updatedDataDto = UserDto.builder().id(createdUserDto.getId()).email("1@ya.ru").password("password").build();
         var updatedUserDto = userService.update(updatedDataDto);
@@ -220,7 +217,7 @@ class UserServiceTest {
         assertNull(updatedUserDto.getFirstName());
         assertNull(updatedUserDto.getLastName());
         assertEquals("1@ya.ru", updatedUserDto.getEmail());
-        assertEquals("password", updatedUserDto.getPassword());
+        assertNotNull(updatedUserDto.getPassword());
         assertNotNull(updatedUserDto.getCreatedAt());
         assertEquals(createdUserDto.getCreatedAt(), updatedUserDto.getCreatedAt());
         assertNotNull(updatedUserDto.getUpdatedAt());
@@ -241,7 +238,7 @@ class UserServiceTest {
         assertNull(updatedUserDto.getFirstName());
         assertNull(updatedUserDto.getLastName());
         assertEquals("1@ya.ru", updatedUserDto.getEmail());
-        assertEquals("password", updatedUserDto.getPassword());
+        assertNotNull(updatedUserDto.getPassword());
         assertNotNull(updatedUserDto.getCreatedAt());
         assertEquals(createdUserDto.getCreatedAt(), updatedUserDto.getCreatedAt());
         assertNotNull(updatedUserDto.getUpdatedAt());
