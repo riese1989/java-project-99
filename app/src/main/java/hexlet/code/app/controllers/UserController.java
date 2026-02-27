@@ -106,10 +106,4 @@ public class UserController {
             log.error(e.getMessage());
         }
     }
-
-    @GetMapping("/check-me")
-    public String check(Authentication auth) {
-        if (auth == null) return "Not authenticated";
-        return "User: " + auth.getName() + " Roles: " + auth.getAuthorities();
-    }
 }

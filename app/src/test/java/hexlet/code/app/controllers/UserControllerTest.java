@@ -127,6 +127,26 @@ class UserControllerTest {
     }
 
     @Test
+    @DisplayName("Создаём пользователя с коротким паролем")
+    void createUserShortPasswordTest() throws Exception {
+        var userDto = UserDto.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .password("12")
+                .email("john.doe@example.com")
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        when(userService.create(userDto)).thenReturn(userDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDto)))
+                .andExpectAll(status().is4xxClientError());
+    }
+
+    @Test
     @DisplayName("Создаём пользователя")
     void createUserTest() throws Exception {
         var userDto = UserDto.builder()

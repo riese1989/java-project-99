@@ -35,7 +35,6 @@ public class UserService implements CommandLineRunner, UserDetailsService {
         var user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Пользователь %s не найден".formatted(email)));
 
-        // 2. Сравниваем сырой пароль из запроса с хешем из базы
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Неверный пароль для пользователя %s".formatted(email));
         }
@@ -51,8 +50,6 @@ public class UserService implements CommandLineRunner, UserDetailsService {
 
     public UserDto create(UserDto userDto) {
         var user = convertToEntity(userDto);
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         if (user.getRole() == null) {
             user.setRole("ROLE_USER");
@@ -112,12 +109,10 @@ public class UserService implements CommandLineRunner, UserDetailsService {
 
         var user = new User();
 
-        user.setId(userDto.getId());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
-        user.setCreatedAt(userDto.getCreatedAt());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         return user;
     }
@@ -125,18 +120,15 @@ public class UserService implements CommandLineRunner, UserDetailsService {
     @Override
     public void run(String... args) {
         var adminEmail = "hexlet@example.com";
+        var admin = new User();
 
-        if (userRepository.findUserByEmail(adminEmail).isEmpty()) {
-            var admin = new User();
+        admin.setEmail(adminEmail);
+        admin.setPassword(passwordEncoder.encode("qwerty"));
+        admin.setRole("ROLE_ADMIN");
 
-            admin.setEmail(adminEmail);
-            admin.setPassword(passwordEncoder.encode("qwerty"));
-            admin.setRole("ROLE_ADMIN");
+        userRepository.save(admin);
 
-            userRepository.save(admin);
-
-            log.info("Default admin user created");
-        }
+        log.info("Default admin user created");
     }
 
     @Override
