@@ -1,12 +1,12 @@
 package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.TaskStatusDto;
-import hexlet.code.app.dtos.UserDto;
-import hexlet.code.app.services.TaskStatusService;
+import hexlet.code.app.services.CrudService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +24,9 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RequestMapping("/api/task_statuses")
 public class TaskStatusController {
-    private final TaskStatusService taskStatusService;
+    private final CrudService<TaskStatusDto> taskStatusService;
 
-    public TaskStatusController(TaskStatusService taskStatusService) {
+    public TaskStatusController(CrudService<TaskStatusDto> taskStatusService) {
         this.taskStatusService = taskStatusService;
     }
 
@@ -61,6 +61,7 @@ public class TaskStatusController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<TaskStatusDto> createTaskStatus(@Valid @RequestBody TaskStatusDto taskStatusDto) {
         try {
@@ -74,6 +75,7 @@ public class TaskStatusController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public void deleteTaskStatus(@PathVariable final Long id) {
         try {
@@ -84,8 +86,9 @@ public class TaskStatusController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskStatusDto> updateUser(@PathVariable final Long id, @RequestBody TaskStatusDto taskStatusDto) {
+    public ResponseEntity<TaskStatusDto> updateTaskStatus(@PathVariable final Long id, @RequestBody TaskStatusDto taskStatusDto) {
         try {
             taskStatusDto.setId(id);
 

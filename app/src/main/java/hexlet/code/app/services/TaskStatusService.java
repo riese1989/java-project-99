@@ -3,6 +3,7 @@ package hexlet.code.app.services;
 import hexlet.code.app.dtos.TaskStatusDto;
 import hexlet.code.app.models.TaskStatus;
 import hexlet.code.app.repositories.TaskStatusRepository;
+import hexlet.code.app.utils.Converter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
@@ -11,36 +12,39 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class TaskStatusService implements CommandLineRunner {
+public class TaskStatusService implements CommandLineRunner, CrudService<TaskStatusDto> {
     private final TaskStatusRepository taskStatusRepository;
+    private final Converter<TaskStatusDto, TaskStatus> taskStatusConverter;
 
 
-    public TaskStatusService(TaskStatusRepository taskStatusRepository) {
+    public TaskStatusService(TaskStatusRepository taskStatusRepository, Converter<TaskStatusDto, TaskStatus> taskStatusConverter) {
         this.taskStatusRepository = taskStatusRepository;
+        this.taskStatusConverter = taskStatusConverter;
     }
 
     public TaskStatusDto findById(Long id) {
         var taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
 
-        return convertToDto(taskStatus);
+        return taskStatusConverter.convertToDto(taskStatus);
     }
 
     public List<TaskStatusDto> findAll() {
         var taskStatuses = taskStatusRepository.findAll();
 
-        return taskStatuses.stream().map(this::convertToDto).toList();
+        return taskStatuses.stream().map(taskStatusConverter::convertToDto).toList();
     }
 
     public TaskStatusDto create(TaskStatusDto taskStatusDto) {
-        var taskStatus = convertToEntity(taskStatusDto);
+        var taskStatus = taskStatusConverter.convertToEntity(taskStatusDto);
 
-        return convertToDto(taskStatusRepository.save(taskStatus));
+        return taskStatusConverter.convertToDto(taskStatusRepository.save(taskStatus));
     }
 
     public TaskStatusDto update(TaskStatusDto taskStatusDto) {
         var id = taskStatusDto.getId();
-        var existingStatus = findById(id);
+        var existingStatus = taskStatusRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
 
         if(taskStatusDto.getName() != null) {
             existingStatus.setName(taskStatusDto.getName());
@@ -50,44 +54,13 @@ public class TaskStatusService implements CommandLineRunner {
             existingStatus.setSlug(taskStatusDto.getSlug());
         }
 
-        var updatedStatus = taskStatusRepository.save(convertToEntity(existingStatus));
+        var updatedStatus = taskStatusRepository.save(existingStatus);
 
-        return convertToDto(updatedStatus);
+        return taskStatusConverter.convertToDto(updatedStatus);
     }
 
     public void delete(Long id) {
         taskStatusRepository.deleteById(id);
-    }
-
-    private TaskStatusDto convertToDto(TaskStatus taskStatus) {
-        if (taskStatus == null) {
-            return null;
-        }
-
-        return TaskStatusDto.builder()
-                .id(taskStatus.getId())
-                .name(taskStatus.getName())
-                .slug(taskStatus.getSlug())
-                .createdAt(taskStatus.getCreatedAt())
-                .build();
-    }
-
-    private TaskStatus convertToEntity(TaskStatusDto taskStatusDto) {
-        if (taskStatusDto == null) {
-            return null;
-        }
-
-        var taskStatus = new TaskStatus();
-
-        taskStatus.setId(taskStatusDto.getId());
-        taskStatus.setName(taskStatusDto.getName());
-        taskStatus.setSlug(taskStatusDto.getSlug());
-
-        if(taskStatusDto.getCreatedAt() != null) {
-            taskStatus.setCreatedAt(taskStatusDto.getCreatedAt());
-        }
-
-        return taskStatus;
     }
 
     @Override

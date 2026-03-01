@@ -3,6 +3,7 @@ package hexlet.code.app.services;
 import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.models.User;
 import hexlet.code.app.repositories.UserRepository;
+import hexlet.code.app.utils.Converter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,20 +16,23 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class UserService implements CommandLineRunner, UserDetailsService {
+public class UserService implements CommandLineRunner, UserDetailsService, CrudService<UserDto> {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Converter<UserDto, User> userConverter;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       Converter<UserDto, User> userConverter) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userConverter = userConverter;
     }
 
-
     public UserDto findById(Long id) {
-        var user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Пользователь с id %s не найден".formatted(id)));
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь с id %s не найден".formatted(id)));
 
-        return convertToDto(user);
+        return userConverter.convertToDto(user);
     }
 
     public UserDto findByEmailAndPassword(String email, String password) {
@@ -39,17 +43,17 @@ public class UserService implements CommandLineRunner, UserDetailsService {
             throw new RuntimeException("Неверный пароль для пользователя %s".formatted(email));
         }
 
-        return convertToDto(user);
+        return userConverter.convertToDto(user);
     }
 
     public List<UserDto> findAll() {
         var users = userRepository.findAll();
 
-        return users.stream().map(this::convertToDto).toList();
+        return users.stream().map(userConverter::convertToDto).toList();
     }
 
     public UserDto create(UserDto userDto) {
-        var user = convertToEntity(userDto);
+        var user = userConverter.convertToEntity(userDto);
 
         if (user.getRole() == null) {
             user.setRole("ROLE_USER");
@@ -57,7 +61,7 @@ public class UserService implements CommandLineRunner, UserDetailsService {
 
         var savedUser = userRepository.save(user);
 
-        return convertToDto(savedUser);
+        return userConverter.convertToDto(savedUser);
     }
 
     public UserDto update(UserDto userDto) {
@@ -80,41 +84,11 @@ public class UserService implements CommandLineRunner, UserDetailsService {
 
         var updatedUser = userRepository.save(existingUser);
 
-        return convertToDto(updatedUser);
+        return userConverter.convertToDto(updatedUser);
     }
 
     public void delete(Long id) {
         userRepository.deleteById(id);
-    }
-
-    public UserDto convertToDto(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return UserDto.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .createdAt(user.getCreatedAt())
-                .updatedAt(user.getUpdatedAt()).build();
-    }
-
-    public User convertToEntity(UserDto userDto) {
-        if (userDto == null) {
-            return null;
-        }
-
-        var user = new User();
-
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-
-        return user;
     }
 
     @Override
@@ -139,7 +113,7 @@ public class UserService implements CommandLineRunner, UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .authorities(user.getRole()) // Убедитесь, что здесь передается "ROLE_ADMIN"
+                .authorities(user.getRole())
                 .build();
     }
 }

@@ -1,6 +1,6 @@
 package hexlet.code.app.controllers;
 
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.services.CrudService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -19,24 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/users")
-public class UserController {
-    private final CrudService<UserDto> userService;
+@RequestMapping("/api/tasks")
+public class TaskController {
+    private final CrudService<TaskDto> taskService;
 
-    public UserController(CrudService<UserDto> userService) {
-        this.userService = userService;
+    public TaskController(CrudService<TaskDto> taskService) {
+        this.taskService = taskService;
     }
 
-    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable final Long id) {
+    public ResponseEntity<TaskDto> getTaskById(@PathVariable final Long id) {
         try {
-            var user = userService.findById(id);
+            var taskDto = taskService.findById(id);
 
-            return new ResponseEntity<>(user, OK);
+            return new ResponseEntity<>(taskDto, OK);
         }
         catch (Exception e) {
             log.error(e.getMessage());
@@ -45,16 +47,15 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
+    public ResponseEntity<List<TaskDto>> getAllTasks() {
         try {
-            var users = userService.findAll();
+            var taskDtos = taskService.findAll();
 
             return ResponseEntity.ok()
-                    .header("X-Total-Count", String.valueOf(users.size()))
+                    .header("X-Total-Count", String.valueOf(taskDtos.size()))
                     .header("Access-Control-Expose-Headers", "X-Total-Count")
-                    .body(users);
+                    .body(taskDtos);
         }
         catch (Exception e) {
             log.error(e.getMessage());
@@ -63,28 +64,38 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto user) {
+    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto) {
         try {
-            var createdUser = userService.create(user);
+            var createdTask = taskService.create(taskDto);
 
-            return new ResponseEntity<>(createdUser, CREATED);
-        }
-        catch (Exception e) {
+            return new ResponseEntity<>(createdTask, CREATED);
+        } catch (Exception e) {
             log.error(e.getMessage());
 
             return new ResponseEntity<>(BAD_REQUEST);
         }
     }
 
-    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable final Long id, @RequestBody UserDto user) {
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public void deleteTask(@PathVariable final Long id) {
         try {
-            user.setId(id);
+            taskService.delete(id);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
 
-            var updatedUser = userService.update(user);
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}")
+    public ResponseEntity<TaskDto> updateTask(@PathVariable final Long id, @RequestBody TaskDto taskDto) {
+        try {
+            taskDto.setId(id);
+
+            var updatedUser = taskService.update(taskDto);
 
             return new ResponseEntity<>(updatedUser, OK);
         }
@@ -92,17 +103,6 @@ public class UserController {
             log.error(e.getMessage());
 
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable final Long id) {
-        try {
-            userService.delete(id);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
         }
     }
 }
