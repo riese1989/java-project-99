@@ -10,9 +10,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class TaskStatusServiceTest {
@@ -63,12 +66,13 @@ public class TaskStatusServiceTest {
     public void testFindAll() {
         var taskStatusDto1 = TaskStatusDto.builder().name("New").slug("slug").build();
         var taskStatusDto2 = TaskStatusDto.builder().name("In progress").slug("slug2").build();
+        var id1 = taskStatusService.create(taskStatusDto1).getId();
+        var id2 = taskStatusService.create(taskStatusDto2).getId();
+        var taskStatuses = taskStatusService.findAll();
 
-        List.of(taskStatusDto1, taskStatusDto2).forEach(taskStatusService::create);
+        assertEquals(2, taskStatuses.size());
 
-        assertEquals(2, taskStatusService.findAll().size());
-
-        var createdStatus1 = taskStatusService.findById(1L);
+        var createdStatus1 = taskStatusService.findById(id1);
 
         assertNotNull(createdStatus1);
         assertNotNull(createdStatus1.getId());
@@ -76,7 +80,7 @@ public class TaskStatusServiceTest {
         assertEquals("slug", createdStatus1.getSlug());
         assertNotNull(createdStatus1.getCreatedAt());
 
-        var createdStatus2 = taskStatusService.findById(2L);
+        var createdStatus2 = taskStatusService.findById(id2);
 
         assertNotNull(createdStatus2);
         assertNotNull(createdStatus2.getId());

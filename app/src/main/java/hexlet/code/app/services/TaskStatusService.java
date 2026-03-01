@@ -53,7 +53,6 @@ public class TaskStatusService implements CommandLineRunner {
         var updatedStatus = taskStatusRepository.save(convertToEntity(existingStatus));
 
         return convertToDto(updatedStatus);
-
     }
 
     public void delete(Long id) {
@@ -83,6 +82,10 @@ public class TaskStatusService implements CommandLineRunner {
         taskStatus.setId(taskStatusDto.getId());
         taskStatus.setName(taskStatusDto.getName());
         taskStatus.setSlug(taskStatusDto.getSlug());
+
+        if(taskStatusDto.getCreatedAt() != null) {
+            taskStatus.setCreatedAt(taskStatusDto.getCreatedAt());
+        }
 
         return taskStatus;
     }

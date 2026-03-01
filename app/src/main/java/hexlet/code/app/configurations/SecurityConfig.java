@@ -41,7 +41,6 @@ public class SecurityConfig {
                         .requestMatchers("/", "/api/login").permitAll()
                         .anyRequest().authenticated()
                 )
-                // Добавьте это, если хотите тестировать через логин/пароль в Postman без токена
                 .httpBasic(org.springframework.security.config.Customizer.withDefaults())
                 .userDetailsService(userService);
 
