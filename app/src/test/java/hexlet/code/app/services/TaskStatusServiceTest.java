@@ -3,6 +3,7 @@ package hexlet.code.app.services;
 import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.dtos.TaskStatusDto;
 import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.repositories.TaskRepository;
 import hexlet.code.app.repositories.TaskStatusRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,8 @@ public class TaskStatusServiceTest {
     @Autowired
     private TaskStatusRepository taskStatusRepository;
     @Autowired
+    private TaskRepository taskRepository;
+    @Autowired
     private TaskStatusService taskStatusService;
     @Autowired
     private UserService userService;
@@ -32,6 +35,7 @@ public class TaskStatusServiceTest {
 
     @BeforeEach
     public void setUp() {
+        taskRepository.deleteAll();
         taskStatusRepository.deleteAll();
     }
 
