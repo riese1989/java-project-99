@@ -19,8 +19,8 @@ public class UserDto {
     @Column(nullable = false)
     @NotNull(message = "Поле password должно быть заполненным")
     @Size(min = 3, message = "Пароль должен содержать минимум 3 символа")
-
     private String password;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

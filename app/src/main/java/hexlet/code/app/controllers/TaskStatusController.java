@@ -1,6 +1,7 @@
 package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.TaskStatusDto;
+import hexlet.code.app.models.TaskStatus;
 import hexlet.code.app.services.CrudService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +25,9 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RequestMapping("/api/task_statuses")
 public class TaskStatusController {
-    private final CrudService<TaskStatusDto> taskStatusService;
+    private final CrudService<TaskStatusDto, TaskStatus> taskStatusService;
 
-    public TaskStatusController(CrudService<TaskStatusDto> taskStatusService) {
+    public TaskStatusController(CrudService<TaskStatusDto, TaskStatus> taskStatusService) {
         this.taskStatusService = taskStatusService;
     }
 

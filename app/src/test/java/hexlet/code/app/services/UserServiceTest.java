@@ -1,5 +1,7 @@
 package hexlet.code.app.services;
 
+import hexlet.code.app.dtos.TaskDto;
+import hexlet.code.app.dtos.TaskStatusDto;
 import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,10 @@ class UserServiceTest {
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private TaskService taskService;
+    @Autowired
+    private TaskStatusService taskStatusService;
 
     @BeforeEach
     void setUp() {
@@ -230,5 +236,19 @@ class UserServiceTest {
         assertNotNull(updatedUserDto.getUpdatedAt());
         assertNotEquals(createdUserDto.getUpdatedAt(), updatedUserDto.getUpdatedAt());
         assertTrue(updatedUserDto.getUpdatedAt().isAfter(createdUserDto.getUpdatedAt()));
+    }
+
+    @Test
+    @DisplayName("Пытаемся удалить пользователя, который связан с задачей")
+    void deleteUserWithTaskTest() {
+        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var createdUserDto = userService.create(userDto);
+        var taskStatusDto = taskStatusService.create(TaskStatusDto.builder().name("name").slug("slug").build());
+        var taskDto = TaskDto.builder().assignee(createdUserDto)
+                .name("name").taskStatus(taskStatusDto).description("description").build();
+
+        taskService.create(taskDto);
+
+        assertThrows(RuntimeException.class, () -> userService.delete(createdUserDto.getId()));
     }
 }

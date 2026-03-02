@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class TaskStatusService implements CommandLineRunner, CrudService<TaskStatusDto> {
+public class TaskStatusService implements CommandLineRunner, CrudService<TaskStatusDto, TaskStatus> {
     private final TaskStatusRepository taskStatusRepository;
     private final Converter<TaskStatusDto, TaskStatus> taskStatusConverter;
 
@@ -23,10 +23,13 @@ public class TaskStatusService implements CommandLineRunner, CrudService<TaskSta
     }
 
     public TaskStatusDto findById(Long id) {
-        var taskStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
+        return taskStatusConverter.convertToDto(findByIdEntity(id));
+    }
 
-        return taskStatusConverter.convertToDto(taskStatus);
+    @Override
+    public TaskStatus findByIdEntity(Long id) {
+        return taskStatusRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
     }
 
     public List<TaskStatusDto> findAll() {

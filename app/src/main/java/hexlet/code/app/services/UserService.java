@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class UserService implements CommandLineRunner, UserDetailsService, CrudService<UserDto> {
+public class UserService implements CommandLineRunner, UserDetailsService, CrudService<UserDto, User> {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final Converter<UserDto, User> userConverter;
@@ -29,10 +29,13 @@ public class UserService implements CommandLineRunner, UserDetailsService, CrudS
     }
 
     public UserDto findById(Long id) {
-        var user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Пользователь с id %s не найден".formatted(id)));
+        return userConverter.convertToDto(findByIdEntity(id));
+    }
 
-        return userConverter.convertToDto(user);
+    @Override
+    public User findByIdEntity(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь с id %s не найден".formatted(id)));
     }
 
     public UserDto findByEmailAndPassword(String email, String password) {

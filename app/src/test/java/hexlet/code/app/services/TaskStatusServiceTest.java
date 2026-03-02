@@ -1,6 +1,8 @@
 package hexlet.code.app.services;
 
+import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.dtos.TaskStatusDto;
+import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.repositories.TaskStatusRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +25,10 @@ public class TaskStatusServiceTest {
     private TaskStatusRepository taskStatusRepository;
     @Autowired
     private TaskStatusService taskStatusService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private TaskService taskService;
 
     @BeforeEach
     public void setUp() {
@@ -138,5 +144,20 @@ public class TaskStatusServiceTest {
         assertEquals("Updated", updatedTaskStatus.getName());
         assertNotEquals(createdTaskStatus.getSlug(), updatedTaskStatus.getSlug());
         assertNotNull(updatedTaskStatus.getCreatedAt());
+    }
+
+    @Test
+    @DisplayName("Пытаемся удалить статус, связанный с задачей")
+    public void testDeleteFail() {
+        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var createdUserDto = userService.create(userDto);
+        var taskStatusDto = taskStatusService.create(TaskStatusDto.builder().name("name").slug("slug").build());
+        var taskDto = TaskDto.builder().assignee(createdUserDto)
+                .name("name").taskStatus(taskStatusDto).description("description").build();
+
+        taskService.create(taskDto);
+
+        assertThrows(RuntimeException.class, () -> taskStatusService.delete(taskStatusDto.getId()));
+
     }
 }

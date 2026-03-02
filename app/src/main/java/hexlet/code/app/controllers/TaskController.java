@@ -1,8 +1,8 @@
 package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.TaskDto;
+import hexlet.code.app.models.Task;
 import hexlet.code.app.services.CrudService;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @Slf4j
 @RequestMapping("/api/tasks")
 public class TaskController {
-    private final CrudService<TaskDto> taskService;
+    private final CrudService<TaskDto, Task> taskService;
 
-    public TaskController(CrudService<TaskDto> taskService) {
+    public TaskController(CrudService<TaskDto, Task> taskService) {
         this.taskService = taskService;
     }
 
@@ -66,7 +63,7 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto) {
+    public ResponseEntity<TaskDto> createTask(@RequestBody TaskDto taskDto) {
         try {
             var createdTask = taskService.create(taskDto);
 

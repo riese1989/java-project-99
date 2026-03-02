@@ -6,16 +6,23 @@ import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.models.Task;
 import hexlet.code.app.models.TaskStatus;
 import hexlet.code.app.models.User;
+import hexlet.code.app.services.CrudService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskConverter implements Converter<TaskDto, Task> {
     private final Converter<TaskStatusDto, TaskStatus> taskStatusConverter;
     private final Converter<UserDto, User> userConverter;
+    private final CrudService<TaskStatusDto, TaskStatus> taskStatusService;
+    private final CrudService<UserDto, User> userService;
 
-    public TaskConverter(Converter<TaskStatusDto, TaskStatus> taskStatusConverter, Converter<UserDto, User> userConverter) {
+    public TaskConverter(Converter<TaskStatusDto, TaskStatus> taskStatusConverter,
+                         Converter<UserDto, User> userConverter, CrudService<TaskStatusDto, TaskStatus> taskStatusService,
+                         CrudService<UserDto, User> userService) {
         this.taskStatusConverter = taskStatusConverter;
         this.userConverter = userConverter;
+        this.taskStatusService = taskStatusService;
+        this.userService = userService;
     }
 
 
@@ -31,8 +38,8 @@ public class TaskConverter implements Converter<TaskDto, Task> {
         task.setName(dto.getName());
         task.setIndex(dto.getIndex());
         task.setDescription(dto.getDescription());
-        task.setTaskStatus(taskStatusConverter.convertToEntity(dto.getTaskStatus()));
-        task.setAssignee(userConverter.convertToEntity(dto.getAssignee()));
+        task.setTaskStatus(taskStatusService.findByIdEntity(dto.getTaskStatus().getId()));
+        task.setAssignee(userService.findByIdEntity(dto.getAssignee().getId()));
 
         if(dto.getCreatedAt() != null) {
             task.setCreatedAt(dto.getCreatedAt());
