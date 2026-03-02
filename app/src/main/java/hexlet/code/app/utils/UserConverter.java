@@ -26,6 +26,10 @@ public class UserConverter implements Converter<UserDto, User> {
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
+        if (dto.getRole() == null) {
+            user.setRole("ROLE_USER");
+        }
+
         return user;
     }
 
@@ -40,8 +44,23 @@ public class UserConverter implements Converter<UserDto, User> {
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
                 .email(entity.getEmail())
-                .password(entity.getPassword())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt()).build();
+    }
+
+    @Override
+    public void updateEntity(UserDto dto, User entity) {
+        if (dto.getFirstName() != null) {
+            entity.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null) {
+            entity.setLastName(dto.getLastName());
+        }
+        if (dto.getEmail() != null) {
+            entity.setEmail(dto.getEmail());
+        }
+        if (dto.getPassword() != null) {
+            entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
     }
 }

@@ -1,8 +1,7 @@
 package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.UserDto;
-import hexlet.code.app.models.User;
-import hexlet.code.app.services.CrudService;
+import hexlet.code.app.services.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,9 +24,9 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RequestMapping("/api/users")
 public class UserController {
-    private final CrudService<UserDto, User> userService;
+    private final UserService userService;
 
-    public UserController(CrudService<UserDto, User> userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 

@@ -1,17 +1,17 @@
 package hexlet.code.app.dtos;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
-public class TaskStatusDto extends BaseDto{
+public class LabelDto extends BaseDto {
     private String name;
-    private String slug;
+    private Set<TaskDto> tasks;
     private LocalDateTime createdAt;
 }

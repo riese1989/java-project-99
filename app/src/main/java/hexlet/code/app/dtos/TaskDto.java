@@ -1,14 +1,15 @@
 package hexlet.code.app.dtos;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-@Builder
-public class TaskDto {
-    private Long id;
+@SuperBuilder
+public class TaskDto extends BaseDto {
     private String name;
     private Integer index;
     private String description;

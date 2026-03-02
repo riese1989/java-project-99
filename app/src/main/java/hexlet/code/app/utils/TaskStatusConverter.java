@@ -38,4 +38,15 @@ public class TaskStatusConverter implements Converter<TaskStatusDto, TaskStatus>
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
+
+    @Override
+    public void updateEntity(TaskStatusDto dto, TaskStatus entity) {
+        if(dto.getName() != null) {
+            entity.setName(dto.getName());
+        }
+
+        if(dto.getSlug() != null) {
+            entity.setSlug(dto.getSlug());
+        }
+    }
 }

@@ -74,7 +74,7 @@ class UserServiceTest {
         assertEquals("John", user.getFirstName());
         assertEquals("Doe", user.getLastName());
         assertEquals("1@ya.ru", user.getEmail());
-        assertNotNull(user.getPassword());
+        assertNull(user.getPassword());
         assertNotNull(user.getCreatedAt());
         assertNotNull(user.getUpdatedAt());
     }
@@ -90,7 +90,7 @@ class UserServiceTest {
         assertNull(user.getFirstName());
         assertNull(user.getLastName());
         assertEquals("1@ya.ru", user.getEmail());
-        assertNotNull(user.getPassword());
+        assertNull(user.getPassword());
         assertNotNull(user.getCreatedAt());
         assertNotNull(user.getUpdatedAt());
     }
@@ -121,7 +121,7 @@ class UserServiceTest {
         assertEquals("John", foundUser.getFirstName());
         assertEquals("Doe", foundUser.getLastName());
         assertEquals("1@ya.ru", foundUser.getEmail());
-        assertNotNull(foundUser.getPassword());
+        assertNull(foundUser.getPassword());
         assertNotNull(foundUser.getCreatedAt());
         assertNotNull(foundUser.getUpdatedAt());
     }
@@ -180,7 +180,7 @@ class UserServiceTest {
         assertEquals("John", createdUser1.getFirstName());
         assertEquals("Doe", createdUser1.getLastName());
         assertEquals("john.doe@example.com", createdUser1.getEmail());
-        assertNotNull(createdUser1.getPassword());
+        assertNull(createdUser1.getPassword());
         assertNotNull(createdUser1.getCreatedAt());
         assertNotNull(createdUser1.getUpdatedAt());
 
@@ -191,7 +191,7 @@ class UserServiceTest {
         assertEquals("John2", createdUser2.getFirstName());
         assertEquals("Doe2", createdUser2.getLastName());
         assertEquals("john2.doe@example.com", createdUser2.getEmail());
-        assertNotNull(createdUser2.getPassword());
+        assertNull(createdUser2.getPassword());
         assertNotNull(createdUser2.getCreatedAt());
         assertNotNull(createdUser2.getUpdatedAt());
     }
@@ -209,7 +209,7 @@ class UserServiceTest {
         assertNull(updatedUserDto.getFirstName());
         assertNull(updatedUserDto.getLastName());
         assertEquals("1@ya.ru", updatedUserDto.getEmail());
-        assertNotNull(updatedUserDto.getPassword());
+        assertNull(updatedUserDto.getPassword());
         assertNotNull(updatedUserDto.getCreatedAt());
         assertEquals(createdUserDto.getCreatedAt(), updatedUserDto.getCreatedAt());
         assertNotNull(updatedUserDto.getUpdatedAt());
@@ -230,7 +230,7 @@ class UserServiceTest {
         assertNull(updatedUserDto.getFirstName());
         assertNull(updatedUserDto.getLastName());
         assertEquals("1@ya.ru", updatedUserDto.getEmail());
-        assertNotNull(updatedUserDto.getPassword());
+        assertNull(updatedUserDto.getPassword());
         assertNotNull(updatedUserDto.getCreatedAt());
         assertEquals(createdUserDto.getCreatedAt(), updatedUserDto.getCreatedAt());
         assertNotNull(updatedUserDto.getUpdatedAt());

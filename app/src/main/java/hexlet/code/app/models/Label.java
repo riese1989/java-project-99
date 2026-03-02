@@ -5,30 +5,34 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "task_statuses")
+@Table(name = "labels")
 @Data
-public class TaskStatus implements BaseEntity {
+public class Label implements BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    @NotNull(message = "Поле name должно быть заполненным")
+    @Column(nullable = false, unique = true, length = 1000)
+    @Size(min = 3)
     private String name;
 
-    @Column(nullable = false, unique = true)
-    @NotNull(message = "Поле slug должно быть заполненным")
-    private String slug;
+    @ManyToMany(mappedBy = "labels")
+    private Set<Task> tasks = new HashSet<>();
 
-    @Column(name = "created_at")
     @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }
+

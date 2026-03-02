@@ -3,7 +3,7 @@ package hexlet.code.app.services;
 import hexlet.code.app.dtos.TaskStatusDto;
 import hexlet.code.app.models.TaskStatus;
 import hexlet.code.app.repositories.TaskStatusRepository;
-import hexlet.code.app.utils.Converter;
+import hexlet.code.app.utils.TaskStatusConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
@@ -14,10 +14,9 @@ import java.util.List;
 @Slf4j
 public class TaskStatusService implements CommandLineRunner, CrudService<TaskStatusDto, TaskStatus> {
     private final TaskStatusRepository taskStatusRepository;
-    private final Converter<TaskStatusDto, TaskStatus> taskStatusConverter;
+    private final TaskStatusConverter taskStatusConverter;
 
-
-    public TaskStatusService(TaskStatusRepository taskStatusRepository, Converter<TaskStatusDto, TaskStatus> taskStatusConverter) {
+    public TaskStatusService(TaskStatusRepository taskStatusRepository, TaskStatusConverter taskStatusConverter) {
         this.taskStatusRepository = taskStatusRepository;
         this.taskStatusConverter = taskStatusConverter;
     }
@@ -49,13 +48,7 @@ public class TaskStatusService implements CommandLineRunner, CrudService<TaskSta
         var existingStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
 
-        if(taskStatusDto.getName() != null) {
-            existingStatus.setName(taskStatusDto.getName());
-        }
-
-        if(taskStatusDto.getSlug() != null) {
-            existingStatus.setSlug(taskStatusDto.getSlug());
-        }
+        taskStatusConverter.updateEntity(taskStatusDto, existingStatus);
 
         var updatedStatus = taskStatusRepository.save(existingStatus);
 

@@ -1,24 +1,21 @@
 package hexlet.code.app.utils;
 
 import hexlet.code.app.dtos.TaskDto;
-import hexlet.code.app.dtos.TaskStatusDto;
-import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.models.Task;
-import hexlet.code.app.models.TaskStatus;
-import hexlet.code.app.models.User;
-import hexlet.code.app.services.CrudService;
+import hexlet.code.app.services.TaskStatusService;
+import hexlet.code.app.services.UserService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskConverter implements Converter<TaskDto, Task> {
-    private final Converter<TaskStatusDto, TaskStatus> taskStatusConverter;
-    private final Converter<UserDto, User> userConverter;
-    private final CrudService<TaskStatusDto, TaskStatus> taskStatusService;
-    private final CrudService<UserDto, User> userService;
+    private final TaskStatusConverter taskStatusConverter;
+    private final UserConverter userConverter;
+    private final TaskStatusService taskStatusService;
+    private final UserService userService;
 
-    public TaskConverter(Converter<TaskStatusDto, TaskStatus> taskStatusConverter,
-                         Converter<UserDto, User> userConverter, CrudService<TaskStatusDto, TaskStatus> taskStatusService,
-                         CrudService<UserDto, User> userService) {
+    public TaskConverter(TaskStatusConverter taskStatusConverter,
+                         UserConverter userConverter, TaskStatusService taskStatusService,
+                         UserService userService) {
         this.taskStatusConverter = taskStatusConverter;
         this.userConverter = userConverter;
         this.taskStatusService = taskStatusService;
@@ -63,5 +60,28 @@ public class TaskConverter implements Converter<TaskDto, Task> {
                 .assignee(userConverter.convertToDto(entity.getAssignee()))
                 .createdAt(entity.getCreatedAt())
                 .build();
+    }
+
+    @Override
+    public void updateEntity(TaskDto dto, Task entity) {
+        if (dto.getName() != null) {
+            entity.setName(dto.getName());
+        }
+
+        if (dto.getIndex() != null) {
+            entity.setIndex(dto.getIndex());
+        }
+
+        if (dto.getDescription() != null) {
+            entity.setDescription(dto.getDescription());
+        }
+
+        if (dto.getTaskStatus() != null) {
+            entity.setTaskStatus(taskStatusConverter.convertToEntity(dto.getTaskStatus()));
+        }
+
+        if (dto.getAssignee() != null) {
+            entity.setAssignee(userConverter.convertToEntity(dto.getAssignee()));
+        }
     }
 }
