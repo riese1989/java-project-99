@@ -8,55 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @Slf4j
-public class TaskStatusService implements CommandLineRunner, CrudService<TaskStatusDto, TaskStatus> {
-    private final TaskStatusRepository taskStatusRepository;
-    private final TaskStatusConverter taskStatusConverter;
+public class TaskStatusService extends AbstractCrudService<TaskStatusDto, TaskStatus> implements CommandLineRunner {
 
     public TaskStatusService(TaskStatusRepository taskStatusRepository, TaskStatusConverter taskStatusConverter) {
-        this.taskStatusRepository = taskStatusRepository;
-        this.taskStatusConverter = taskStatusConverter;
-    }
-
-    public TaskStatusDto findById(Long id) {
-        return taskStatusConverter.convertToDto(findByIdEntity(id));
-    }
-
-    @Override
-    public TaskStatus findByIdEntity(Long id) {
-        return taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
-    }
-
-    public List<TaskStatusDto> findAll() {
-        var taskStatuses = taskStatusRepository.findAll();
-
-        return taskStatuses.stream().map(taskStatusConverter::convertToDto).toList();
-    }
-
-    public TaskStatusDto create(TaskStatusDto taskStatusDto) {
-        var taskStatus = taskStatusConverter.convertToEntity(taskStatusDto);
-
-        return taskStatusConverter.convertToDto(taskStatusRepository.save(taskStatus));
-    }
-
-    public TaskStatusDto update(TaskStatusDto taskStatusDto) {
-        var id = taskStatusDto.getId();
-        var existingStatus = taskStatusRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Статус с id %s не найден".formatted(id)));
-
-        taskStatusConverter.updateEntity(taskStatusDto, existingStatus);
-
-        var updatedStatus = taskStatusRepository.save(existingStatus);
-
-        return taskStatusConverter.convertToDto(updatedStatus);
-    }
-
-    public void delete(Long id) {
-        taskStatusRepository.deleteById(id);
+        super(taskStatusRepository, taskStatusConverter);
     }
 
     @Override
@@ -78,5 +35,10 @@ public class TaskStatusService implements CommandLineRunner, CrudService<TaskSta
 
             log.info("Статус {} с slug {} успешно создан", name, slug);
         }
+    }
+
+    @Override
+    public String getErrorMessage() {
+        return "Статус с id %s не найден";
     }
 }

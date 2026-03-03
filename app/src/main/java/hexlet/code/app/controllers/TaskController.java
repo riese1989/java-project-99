@@ -1,8 +1,7 @@
 package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.TaskDto;
-import hexlet.code.app.models.Task;
-import hexlet.code.app.services.CrudService;
+import hexlet.code.app.services.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +23,9 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RequestMapping("/api/tasks")
 public class TaskController {
-    private final CrudService<TaskDto, Task> taskService;
+    private final TaskService taskService;
 
-    public TaskController(CrudService<TaskDto, Task> taskService) {
+    public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 

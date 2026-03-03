@@ -3,9 +3,11 @@ package hexlet.code.app.utils;
 import hexlet.code.app.dtos.LabelDto;
 import hexlet.code.app.models.Label;
 import hexlet.code.app.services.TaskService;
+import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+@Service
 public class LabelConverter implements Converter<LabelDto, Label>{
     private final TaskService taskService;
     private final TaskConverter taskConverter;
