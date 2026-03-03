@@ -1,13 +1,15 @@
 package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.LabelDto;
-import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.services.LabelService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,6 +69,32 @@ public class LabelController {
             log.error(e.getMessage());
 
             return new ResponseEntity<>(BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<LabelDto> updateLabel(@PathVariable final Long id, @RequestBody LabelDto labelDto) {
+        try {
+            labelDto.setId(id);
+
+            var updatedUser = labelService.update(labelDto);
+
+            return new ResponseEntity<>(updatedUser, OK);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteLabel(@PathVariable final Long id) {
+        try {
+            labelService.delete(id);
+        }
+        catch (Exception e) {
+            log.error(e.getMessage());
         }
     }
 }

@@ -36,6 +36,8 @@ public class UserController {
         try {
             var user = userService.findById(id);
 
+            user.setPassword(null);
+
             return new ResponseEntity<>(user, OK);
         }
         catch (Exception e) {
@@ -49,7 +51,8 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
         try {
-            var users = userService.findAll();
+            var users = userService.findAll().stream().peek(user -> user.setPassword(null))
+                    .toList();
 
             return ResponseEntity.ok()
                     .header("X-Total-Count", String.valueOf(users.size()))
@@ -69,6 +72,8 @@ public class UserController {
         try {
             var createdUser = userService.create(user);
 
+            createdUser.setPassword(null);
+
             return new ResponseEntity<>(createdUser, CREATED);
         }
         catch (Exception e) {
@@ -85,6 +90,8 @@ public class UserController {
             user.setId(id);
 
             var updatedUser = userService.update(user);
+
+            updatedUser.setPassword(null);
 
             return new ResponseEntity<>(updatedUser, OK);
         }

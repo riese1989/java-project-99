@@ -2,18 +2,16 @@ package hexlet.code.app.utils;
 
 import hexlet.code.app.dtos.LabelDto;
 import hexlet.code.app.models.Label;
-import hexlet.code.app.services.TaskService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
 @Service
 public class LabelConverter implements Converter<LabelDto, Label>{
-    private final TaskService taskService;
     private final TaskConverter taskConverter;
 
-    public LabelConverter(TaskService taskService, TaskConverter taskConverter) {
-        this.taskService = taskService;
+    public LabelConverter(@Lazy TaskConverter taskConverter) {
         this.taskConverter = taskConverter;
     }
 
@@ -29,8 +27,7 @@ public class LabelConverter implements Converter<LabelDto, Label>{
         label.setName(dto.getName());
 
         var tasks = dto.getTasks().stream()
-                .map(taskDto -> taskService.findByIdEntity(taskDto.getId()))
-                .collect(Collectors.toSet());
+                .map(taskConverter::convertToEntity).collect(Collectors.toSet());
 
         label.setTasks(tasks);
 

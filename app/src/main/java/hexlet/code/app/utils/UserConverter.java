@@ -44,6 +44,7 @@ public class UserConverter implements Converter<UserDto, User> {
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
                 .email(entity.getEmail())
+                .password(entity.getPassword())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt()).build();
     }

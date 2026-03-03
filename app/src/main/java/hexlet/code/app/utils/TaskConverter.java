@@ -2,24 +2,23 @@ package hexlet.code.app.utils;
 
 import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.models.Task;
-import hexlet.code.app.services.TaskStatusService;
-import hexlet.code.app.services.UserService;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
 
 @Service
 public class TaskConverter implements Converter<TaskDto, Task> {
     private final TaskStatusConverter taskStatusConverter;
     private final UserConverter userConverter;
-    private final TaskStatusService taskStatusService;
-    private final UserService userService;
+    private final LabelConverter labelConverter;
 
     public TaskConverter(TaskStatusConverter taskStatusConverter,
-                         UserConverter userConverter, TaskStatusService taskStatusService,
-                         UserService userService) {
+                         UserConverter userConverter, LabelConverter labelConverter) {
         this.taskStatusConverter = taskStatusConverter;
         this.userConverter = userConverter;
-        this.taskStatusService = taskStatusService;
-        this.userService = userService;
+        this.labelConverter = labelConverter;
     }
 
 
@@ -35,8 +34,11 @@ public class TaskConverter implements Converter<TaskDto, Task> {
         task.setName(dto.getName());
         task.setIndex(dto.getIndex());
         task.setDescription(dto.getDescription());
-        task.setTaskStatus(taskStatusService.findByIdEntity(dto.getTaskStatus().getId()));
-        task.setAssignee(userService.findByIdEntity(dto.getAssignee().getId()));
+        task.setTaskStatus(taskStatusConverter.convertToEntity(dto.getTaskStatus()));
+        task.setAssignee(userConverter.convertToEntity(dto.getAssignee()));
+        ofNullable(dto.getLabels()).ifPresent(labels ->
+                task.setLabels(labels.stream()
+                        .map(labelConverter::convertToEntity).collect(Collectors.toSet())));
 
         if(dto.getCreatedAt() != null) {
             task.setCreatedAt(dto.getCreatedAt());
@@ -58,6 +60,7 @@ public class TaskConverter implements Converter<TaskDto, Task> {
                 .description(entity.getDescription())
                 .taskStatus(taskStatusConverter.convertToDto(entity.getTaskStatus()))
                 .assignee(userConverter.convertToDto(entity.getAssignee()))
+                .labels(entity.getLabels().stream().map(labelConverter::convertToDto).collect(Collectors.toSet()))
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -78,6 +81,11 @@ public class TaskConverter implements Converter<TaskDto, Task> {
 
         if (dto.getTaskStatus() != null) {
             entity.setTaskStatus(taskStatusConverter.convertToEntity(dto.getTaskStatus()));
+        }
+
+        if (dto.getLabels() != null) {
+            entity.setLabels(dto.getLabels().stream()
+                    .map(labelConverter::convertToEntity).collect(Collectors.toSet()));
         }
 
         if (dto.getAssignee() != null) {

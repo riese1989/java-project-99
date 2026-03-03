@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,5 +20,6 @@ public class TaskDto extends BaseDto {
     private String description;
     private TaskStatusDto taskStatus;
     private UserDto assignee;
+    private Set<LabelDto> labels;
     private LocalDateTime createdAt;
 }

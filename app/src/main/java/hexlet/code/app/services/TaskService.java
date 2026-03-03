@@ -13,6 +13,13 @@ public class TaskService extends AbstractCrudService<TaskDto, Task> {
         super(taskRepository, taskConverter);
     }
 
+    //todo переопределить, чтоб подставлялись реальные значения
+
+    @Override
+    public TaskDto create(TaskDto dto) {
+        return super.create(dto);
+    }
+
     @Override
     public String getErrorMessage() {
         return "Задача с id %s не найдена";
