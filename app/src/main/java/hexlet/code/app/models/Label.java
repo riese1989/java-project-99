@@ -8,7 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "labels")
-@Data
+@Getter
+@Setter
 public class Label implements BaseEntity {
 
     @Id

@@ -2,17 +2,15 @@ package hexlet.code.app.utils;
 
 import hexlet.code.app.dtos.LabelDto;
 import hexlet.code.app.models.Label;
-import org.springframework.context.annotation.Lazy;
+import hexlet.code.app.repositories.LabelRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.stream.Collectors;
 
 @Service
 public class LabelConverter implements Converter<LabelDto, Label>{
-    private final TaskConverter taskConverter;
+    private final LabelRepository labelRepository;
 
-    public LabelConverter(@Lazy TaskConverter taskConverter) {
-        this.taskConverter = taskConverter;
+    public LabelConverter(LabelRepository labelRepository) {
+        this.labelRepository = labelRepository;
     }
 
     @Override
@@ -21,15 +19,18 @@ public class LabelConverter implements Converter<LabelDto, Label>{
             return null;
         }
 
+        if (dto.getId() != null) {
+            var entity = labelRepository.findById(dto.getId()).orElse(null);
+
+            if (entity != null) {
+                return entity;
+            }
+        }
+
         var label = new Label();
 
         label.setId(dto.getId());
         label.setName(dto.getName());
-
-        var tasks = dto.getTasks().stream()
-                .map(taskConverter::convertToEntity).collect(Collectors.toSet());
-
-        label.setTasks(tasks);
 
         return label;
     }
@@ -43,12 +44,13 @@ public class LabelConverter implements Converter<LabelDto, Label>{
         return LabelDto.builder()
                     .id(entity.getId())
                     .name(entity.getName())
-                    .tasks(entity.getTasks().stream().map(taskConverter::convertToDto).collect(Collectors.toSet()))
+                    .createdAt(entity.getCreatedAt())
                     .build();
     }
 
     @Override
     public void updateEntity(LabelDto dto, Label entity) {
-        return ;
+        if (dto.getName() != null)
+            entity.setName(dto.getName());
     }
 }

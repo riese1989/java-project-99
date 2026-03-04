@@ -32,23 +32,21 @@ public abstract class AbstractCrudService<D extends BaseDto, E extends BaseEntit
     }
 
     public D create(D dto) {
-        var user = converter.convertToEntity(dto);
+        var entity = converter.convertToEntity(dto);
 
-        var savedUser = repository.save(user);
+        var savedData = repository.save(entity);
 
-        return converter.convertToDto(savedUser);
+        return converter.convertToDto(savedData);
     }
 
     public D update(D dto) {
         var id = dto.getId();
-        var existingUser = repository.findById(dto.getId()).orElseThrow(()
+        var existingEntity = repository.findById(dto.getId()).orElseThrow(()
                 -> new RuntimeException(getErrorMessage().formatted(id)));
 
-        converter.updateEntity(dto, existingUser);
+        converter.updateEntity(dto, existingEntity);
 
-        var updatedUser = repository.save(existingUser);
-
-        return converter.convertToDto(updatedUser);
+        return converter.convertToDto(existingEntity);
     }
 
     public void delete(Long id) {

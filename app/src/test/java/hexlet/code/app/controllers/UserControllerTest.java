@@ -67,7 +67,7 @@ class UserControllerTest {
                         jsonPath("$.firstName").value("John"),
                         jsonPath("$.lastName").value("Doe"),
                         jsonPath("$.email").value("john.doe@example.com"),
-                        jsonPath("$.password").value("password"),
+                        jsonPath("$.password").doesNotExist(),
                         jsonPath("$.createdAt").exists(),
                         jsonPath("$.updatedAt").doesNotExist());
     }
@@ -103,14 +103,14 @@ class UserControllerTest {
                         jsonPath("$[0].firstName").value("John"),
                         jsonPath("$[0].lastName").value("Doe"),
                         jsonPath("$[0].email").value("john.doe@example.com"),
-                        jsonPath("$[0].password").value("password"),
+                        jsonPath("$[0].password").doesNotExist(),
                         jsonPath("$[0].createdAt").exists(),
                         jsonPath("$[0].updatedAt").doesNotExist(),
                         jsonPath("$[1].id").exists(),
                         jsonPath("$[1].firstName").value("John2"),
                         jsonPath("$[1].lastName").value("Doe2"),
                         jsonPath("$[1].email").value("john2.doe@example.com"),
-                        jsonPath("$[1].password").value("password2"),
+                        jsonPath("$[1].password").doesNotExist(),
                         jsonPath("$[1].createdAt").exists(),
                         jsonPath("$[1].updatedAt").doesNotExist()
                 );
@@ -124,26 +124,6 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("Создаём пользователя с коротким паролем")
-    void createUserShortPasswordTest() throws Exception {
-        var userDto = UserDto.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doe")
-                .password("12")
-                .email("john.doe@example.com")
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        when(userService.create(userDto)).thenReturn(userDto);
-
-        mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(userDto)))
-                .andExpectAll(status().is4xxClientError());
     }
 
     @Test

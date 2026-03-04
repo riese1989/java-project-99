@@ -2,15 +2,18 @@ package hexlet.code.app.utils;
 
 import hexlet.code.app.dtos.UserDto;
 import hexlet.code.app.models.User;
+import hexlet.code.app.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserConverter implements Converter<UserDto, User> {
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    public UserConverter(PasswordEncoder passwordEncoder) {
+    public UserConverter(PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -19,12 +22,25 @@ public class UserConverter implements Converter<UserDto, User> {
             return null;
         }
 
+        if (dto.getId() != null) {
+            var entity = userRepository.findById(dto.getId()).orElse(null);
+
+            if (entity != null) {
+                return entity;
+            }
+        }
+
         var user = new User();
 
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+        var password = dto.getPassword();
+
+        if (password != null) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
 
         if (dto.getRole() == null) {
             user.setRole("ROLE_USER");
@@ -44,7 +60,6 @@ public class UserConverter implements Converter<UserDto, User> {
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
                 .email(entity.getEmail())
-                .password(entity.getPassword())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt()).build();
     }

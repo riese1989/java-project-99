@@ -1,35 +1,32 @@
 package hexlet.code.app.services;
 
+import hexlet.code.app.dtos.LabelDto;
 import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.dtos.TaskStatusDto;
 import hexlet.code.app.dtos.UserDto;
-import hexlet.code.app.repositories.TaskRepository;
-import hexlet.code.app.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @Transactional
 class TaskServiceTest {
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
     @Autowired
     private TaskService taskService;
-
     @Autowired
     private TaskStatusService taskStatusService;
-
+    @MockitoBean
+    private LabelService labelService;
     @Autowired
     private UserService userService;
     private TaskStatusDto existingStatus;
@@ -47,17 +44,21 @@ class TaskServiceTest {
                 .firstName("Ivan")
                 .build();
         assignee = userService.create(userDto);
-
     }
 
     @Test
     @DisplayName("Создаем задачу и проверяем её сохранение")
     void createAndGetTaskTest() {
+        var labelDtos = new HashSet<LabelDto>();
+
+        labelDtos.add(LabelDto.builder().name("Bug").build());
+
         var taskDto = TaskDto.builder()
                 .name("Fix bug")
                 .index(1)
                 .description("Long description")
                 .taskStatus(existingStatus)
+                .labels(labelDtos)
                 .assignee(assignee)
                 .build();
 
@@ -70,28 +71,39 @@ class TaskServiceTest {
         assertEquals(assignee.getEmail(), created.getAssignee().getEmail());
 
         var found = taskService.findById(created.getId());
+
         assertEquals("Long description", found.getDescription());
+        verify(labelService).findOrCreate(labelDtos);
     }
 
     @Test
-    @DisplayName("Обновляем только имя задачи")
+    @DisplayName("Обновляем только имя задачи и метку")
     void updateTaskNameTest() {
+        var labelDtos = new HashSet<LabelDto>();
+
+        labelDtos.add(LabelDto.builder().name("Bug").build());
+
         var taskDto = TaskDto.builder()
                 .name("Old Name")
                 .taskStatus(existingStatus)
                 .assignee(assignee)
+                .labels(labelDtos)
                 .build();
         var created = taskService.create(taskDto);
+
+        labelDtos.add(LabelDto.builder().name("Fix").build());
 
         var updateData = TaskDto.builder()
                 .id(created.getId())
                 .name("New Name")
+                .labels(labelDtos)
                 .build();
 
         var updated = taskService.update(updateData);
 
         assertEquals("New Name", updated.getName());
         assertEquals(existingStatus.getName(), updated.getTaskStatus().getName());
+        verify(labelService, times(2)).findOrCreate(labelDtos);
     }
 
     @Test

@@ -8,17 +8,27 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TaskService extends AbstractCrudService<TaskDto, Task> {
+    private final LabelService labelService;
 
-    public TaskService(TaskRepository taskRepository, TaskConverter taskConverter) {
+    public TaskService(TaskRepository taskRepository, TaskConverter taskConverter, LabelService labelService) {
         super(taskRepository, taskConverter);
+        this.labelService = labelService;
     }
-
-    //todo переопределить, чтоб подставлялись реальные значения
 
     @Override
     public TaskDto create(TaskDto dto) {
+        labelService.findOrCreate(dto.getLabels());
+
         return super.create(dto);
     }
+
+    @Override
+    public TaskDto update(TaskDto dto) {
+        labelService.findOrCreate(dto.getLabels());
+
+        return super.update(dto);
+    }
+
 
     @Override
     public String getErrorMessage() {

@@ -5,6 +5,7 @@ import hexlet.code.app.services.LabelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ public class LabelController {
         this.labelService = labelService;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<LabelDto> getLabelById(@PathVariable final Long id) {
         try {
@@ -42,6 +44,7 @@ public class LabelController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<LabelDto>> getAllLabels() {
         try {
@@ -59,6 +62,7 @@ public class LabelController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<LabelDto> createLabel(@RequestBody LabelDto labelDto) {
         try {
@@ -72,6 +76,7 @@ public class LabelController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<LabelDto> updateLabel(@PathVariable final Long id, @RequestBody LabelDto labelDto) {
         try {
@@ -88,6 +93,7 @@ public class LabelController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public void deleteLabel(@PathVariable final Long id) {
         try {

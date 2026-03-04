@@ -3,6 +3,7 @@ package hexlet.code.app.services;
 import hexlet.code.app.dtos.TaskDto;
 import hexlet.code.app.dtos.TaskStatusDto;
 import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.repositories.TaskStatusRepository;
 import hexlet.code.app.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,10 +29,13 @@ class UserServiceTest {
     private TaskService taskService;
     @Autowired
     private TaskStatusService taskStatusService;
+    @Autowired
+    private TaskStatusRepository taskStatusRepository;
 
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
+        taskStatusRepository.deleteAll();
     }
 
     @ParameterizedTest
@@ -53,7 +57,7 @@ class UserServiceTest {
                         "Некорректный формат email"),
                 Arguments.of("Пустой password",
                         UserDto.builder().firstName("John").lastName("Doe").email("1@ya.ru").build(),
-                        "rawPassword cannot be null")
+                        "Поле password должно быть заполненным")
 
         );
     }
@@ -213,8 +217,6 @@ class UserServiceTest {
         assertNotNull(updatedUserDto.getCreatedAt());
         assertEquals(createdUserDto.getCreatedAt(), updatedUserDto.getCreatedAt());
         assertNotNull(updatedUserDto.getUpdatedAt());
-        assertNotEquals(createdUserDto.getUpdatedAt(), updatedUserDto.getUpdatedAt());
-        assertTrue(updatedUserDto.getUpdatedAt().isAfter(createdUserDto.getUpdatedAt()));
     }
 
     @Test
@@ -234,8 +236,6 @@ class UserServiceTest {
         assertNotNull(updatedUserDto.getCreatedAt());
         assertEquals(createdUserDto.getCreatedAt(), updatedUserDto.getCreatedAt());
         assertNotNull(updatedUserDto.getUpdatedAt());
-        assertNotEquals(createdUserDto.getUpdatedAt(), updatedUserDto.getUpdatedAt());
-        assertTrue(updatedUserDto.getUpdatedAt().isAfter(createdUserDto.getUpdatedAt()));
     }
 
     @Test

@@ -72,8 +72,6 @@ public class UserController {
         try {
             var createdUser = userService.create(user);
 
-            createdUser.setPassword(null);
-
             return new ResponseEntity<>(createdUser, CREATED);
         }
         catch (Exception e) {
@@ -90,8 +88,6 @@ public class UserController {
             user.setId(id);
 
             var updatedUser = userService.update(user);
-
-            updatedUser.setPassword(null);
 
             return new ResponseEntity<>(updatedUser, OK);
         }

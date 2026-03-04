@@ -56,44 +56,25 @@ class TaskControllerTest {
                 .name("name")
                 .index(2)
                 .description("description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(3L)
-                        .name("name")
-                        .slug("slug")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(4L)
-                        .firstName("firstName")
-                        .lastName("lastName")
-                        .email("email@email.ru")
-                        .password("1234")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .taskStatus(TaskStatusDto.builder().id(3L).slug("slug").build())
+                .assignee(UserDto.builder().id(4L).build())
                 .build();
 
         when(taskService.findById(1L)).thenReturn(taskDto);
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/1")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpectAll(status().isOk(),
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpectAll(
+                        status().isOk(),
                         jsonPath("$.id").value(1),
                         jsonPath("$.name").value("name"),
                         jsonPath("$.index").value(2),
                         jsonPath("$.description").value("description"),
-                        jsonPath("$.taskStatus.id").value(3),
-                        jsonPath("$.taskStatus.name").value("name"),
-                        jsonPath("$.taskStatus.slug").value("slug"),
-                        jsonPath("$.taskStatus.createdAt").exists(),
-                        jsonPath("$.assignee.id").value(4),
-                        jsonPath("$.assignee.firstName").value("firstName"),
-                        jsonPath("$.assignee.lastName").value("lastName"),
-                        jsonPath("$.assignee.email").value("email@email.ru"),
-                        jsonPath("$.assignee.password").value("1234"),
-                        jsonPath("$.assignee.createdAt").exists(),
-                        jsonPath("$.assignee.updatedAt").exists());
+                        jsonPath("$.assignee_id").value(4),
+                        jsonPath("$.status").value("slug")
+                );
     }
+
 
     @Test
     @DisplayName("При получении задачи произошла ошибка")
@@ -113,21 +94,8 @@ class TaskControllerTest {
                 .name("First Task")
                 .index(10)
                 .description("First Description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(10L)
-                        .name("New")
-                        .slug("new")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(100L)
-                        .firstName("Ivan")
-                        .lastName("Ivanov")
-                        .email("ivan@test.ru")
-                        .password("pass1")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .taskStatus(TaskStatusDto.builder().slug("new").build())
+                .assignee(UserDto.builder().id(100L).build())
                 .build();
 
         var taskDto2 = TaskDto.builder()
@@ -135,21 +103,8 @@ class TaskControllerTest {
                 .name("Second Task")
                 .index(20)
                 .description("Second Description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(20L)
-                        .name("Done")
-                        .slug("done")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(200L)
-                        .firstName("Petr")
-                        .lastName("Petrov")
-                        .email("petr@test.ru")
-                        .password("pass2")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .taskStatus(TaskStatusDto.builder().slug("done").build())
+                .assignee(UserDto.builder().id(200L).build())
                 .build();
 
         when(taskService.findAll()).thenReturn(List.of(taskDto1, taskDto2));
@@ -163,36 +118,17 @@ class TaskControllerTest {
                         jsonPath("$[0].id").value(1),
                         jsonPath("$[0].name").value("First Task"),
                         jsonPath("$[0].index").value(10),
-                        jsonPath("$[0].description").value("First Description"),
-                        jsonPath("$[0].taskStatus.id").value(10),
-                        jsonPath("$[0].taskStatus.name").value("New"),
-                        jsonPath("$[0].taskStatus.slug").value("new"),
-                        jsonPath("$[0].taskStatus.createdAt").exists(),
-                        jsonPath("$[0].assignee.id").value(100),
-                        jsonPath("$[0].assignee.firstName").value("Ivan"),
-                        jsonPath("$[0].assignee.lastName").value("Ivanov"),
-                        jsonPath("$[0].assignee.email").value("ivan@test.ru"),
-                        jsonPath("$[0].assignee.password").value("pass1"),
-                        jsonPath("$[0].assignee.createdAt").exists(),
-                        jsonPath("$[0].assignee.updatedAt").exists(),
+                        jsonPath("$[0].assignee_id").value(100),
+                        jsonPath("$[0].status").value("new"),
 
                         jsonPath("$[1].id").value(2),
                         jsonPath("$[1].name").value("Second Task"),
                         jsonPath("$[1].index").value(20),
-                        jsonPath("$[1].description").value("Second Description"),
-                        jsonPath("$[1].taskStatus.id").value(20),
-                        jsonPath("$[1].taskStatus.name").value("Done"),
-                        jsonPath("$[1].taskStatus.slug").value("done"),
-                        jsonPath("$[1].taskStatus.createdAt").exists(),
-                        jsonPath("$[1].assignee.id").value(200),
-                        jsonPath("$[1].assignee.firstName").value("Petr"),
-                        jsonPath("$[1].assignee.lastName").value("Petrov"),
-                        jsonPath("$[1].assignee.email").value("petr@test.ru"),
-                        jsonPath("$[1].assignee.password").value("pass2"),
-                        jsonPath("$[1].assignee.createdAt").exists(),
-                        jsonPath("$[1].assignee.updatedAt").exists()
+                        jsonPath("$[1].assignee_id").value(200),
+                        jsonPath("$[1].status").value("done")
                 );
     }
+
 
     @Test
     @DisplayName("При добавлении задачи произошла ошибка")
@@ -257,22 +193,16 @@ class TaskControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
-                .andExpectAll(status().isCreated(),
+                .andExpectAll(
+                        status().isCreated(),
                         jsonPath("$.id").value(1),
                         jsonPath("$.name").value("First Task"),
                         jsonPath("$.index").value(2),
                         jsonPath("$.description").value("First Description"),
-                        jsonPath("$.taskStatus.id").value(3),
-                        jsonPath("$.taskStatus.name").value("New"),
-                        jsonPath("$.taskStatus.slug").value("slug"),
-                        jsonPath("$.taskStatus.createdAt").exists(),
-                        jsonPath("$.assignee.id").value(4),
-                        jsonPath("$.assignee.firstName").value("Ivan"),
-                        jsonPath("$.assignee.lastName").value("Ivanov"),
-                        jsonPath("$.assignee.email").value("ivan@test.ru"),
-                        jsonPath("$.assignee.password").value("pass1"),
-                        jsonPath("$.assignee.createdAt").exists(),
-                        jsonPath("$.assignee.updatedAt").exists());
+                        jsonPath("$.status").value("slug"),
+                        jsonPath("$.assignee_id").value(4),
+                        jsonPath("$.taskLabelIds").doesNotExist()
+                );
     }
 
     @Test
@@ -309,28 +239,15 @@ class TaskControllerTest {
     }
 
     @Test
-    @DisplayName("Успешное обновление задачи")
+    @DisplayName("Обновляем задачу")
     void updateTask() throws Exception {
         var taskDto = TaskDto.builder()
                 .id(1L)
                 .name("First Task")
                 .index(2)
                 .description("First Description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(3L)
-                        .name("New")
-                        .slug("slug")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(4L)
-                        .firstName("Ivan")
-                        .lastName("Ivanov")
-                        .email("ivan@test.ru")
-                        .password("pass1")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .taskStatus(TaskStatusDto.builder().id(3L).name("New").slug("slug").build())
+                .assignee(UserDto.builder().id(4L).firstName("Ivan").build())
                 .build();
 
         when(taskService.update(any(TaskDto.class))).thenReturn(taskDto);
@@ -338,22 +255,16 @@ class TaskControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
-                .andExpectAll(status().isOk(),
+                .andExpectAll(
+                        status().isOk(),
                         jsonPath("$.id").value(1),
                         jsonPath("$.name").value("First Task"),
                         jsonPath("$.index").value(2),
                         jsonPath("$.description").value("First Description"),
-                        jsonPath("$.taskStatus.id").value(3),
-                        jsonPath("$.taskStatus.name").value("New"),
-                        jsonPath("$.taskStatus.slug").value("slug"),
-                        jsonPath("$.taskStatus.createdAt").exists(),
-                        jsonPath("$.assignee.id").value(4),
-                        jsonPath("$.assignee.firstName").value("Ivan"),
-                        jsonPath("$.assignee.lastName").value("Ivanov"),
-                        jsonPath("$.assignee.email").value("ivan@test.ru"),
-                        jsonPath("$.assignee.password").value("pass1"),
-                        jsonPath("$.assignee.createdAt").exists(),
-                        jsonPath("$.assignee.updatedAt").exists());
+                        jsonPath("$.assignee_id").value(4),
+                        jsonPath("$.status").value("slug")
+                );
     }
+
 
 }
