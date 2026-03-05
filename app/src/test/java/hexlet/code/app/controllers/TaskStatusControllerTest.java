@@ -1,7 +1,8 @@
 package hexlet.code.app.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.app.dtos.TaskStatusDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.response.TaskStatusResponseDto;
 import hexlet.code.app.services.TaskStatusService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,9 +50,10 @@ public class TaskStatusControllerTest {
     @Test
     @DisplayName("Успешно получаем статус")
     void getTaskStatusSuccess() throws Exception {
-        var taskStatusDto = TaskStatusDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var request = TaskStatusRequestDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var response = TaskStatusResponseDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
 
-        when(taskStatusService.findById(any())).thenReturn(taskStatusDto);
+        when(taskStatusService.findById(any())).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -65,10 +67,10 @@ public class TaskStatusControllerTest {
     @Test
     @DisplayName("Получаем все статусы")
     void getAllTaskStatuses() throws Exception {
-        var taskStatusDto1 = TaskStatusDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
-        var taskStatusDto2 = TaskStatusDto.builder().id(2L).name("In progress").slug("slug2").createdAt(LDT).build();
+        var response1 = TaskStatusResponseDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var response2 = TaskStatusResponseDto.builder().id(2L).name("In progress").slug("slug2").createdAt(LDT).build();
 
-        when(taskStatusService.findAll()).thenReturn(List.of(taskStatusDto1, taskStatusDto2));
+        when(taskStatusService.findAll()).thenReturn(List.of(response1, response2));
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -96,13 +98,14 @@ public class TaskStatusControllerTest {
     @Test
     @DisplayName("Успешное создание статуса")
     void createTaskStatusSuccess() throws Exception {
-        var taskStatusDto = TaskStatusDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var request = TaskStatusRequestDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var response = TaskStatusResponseDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
 
-        when(taskStatusService.create(taskStatusDto)).thenReturn(taskStatusDto);
+        when(taskStatusService.create(request)).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(taskStatusDto)))
+                        .content(objectMapper.writeValueAsString(response)))
                 .andExpectAll(status().isCreated(),
                         jsonPath("$.id").value(1),
                         jsonPath("$.name").value("New"),
@@ -113,7 +116,7 @@ public class TaskStatusControllerTest {
     @Test
     @DisplayName("При создании статуса произошла ошибка")
     void createTaskStatusError() throws Exception {
-        var taskStatusDto = TaskStatusDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var taskStatusDto = TaskStatusRequestDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
 
         when(taskStatusService.create(taskStatusDto)).thenThrow(new RuntimeException("Task status not created"));
 
@@ -126,13 +129,14 @@ public class TaskStatusControllerTest {
     @Test
     @DisplayName("Успешное обновление статуса")
     void updateTaskStatusSuccess() throws Exception {
-        var taskStatusDto = TaskStatusDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var request = TaskStatusRequestDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var response = TaskStatusResponseDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
 
-        when(taskStatusService.update(taskStatusDto)).thenReturn(taskStatusDto);
+        when(taskStatusService.update(request)).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(taskStatusDto)))
+                        .content(objectMapper.writeValueAsString(response)))
                 .andExpectAll(status().isOk(),
                         jsonPath("$.id").value(1),
                         jsonPath("$.name").value("New"),
@@ -143,7 +147,7 @@ public class TaskStatusControllerTest {
     @Test
     @DisplayName("При обновлении статуса произошла ошибка")
     void updateTaskStatusError() throws Exception {
-        var taskStatusDto = TaskStatusDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
+        var taskStatusDto = TaskStatusRequestDto.builder().id(1L).name("New").slug("slug").createdAt(LDT).build();
 
         when(taskStatusService.update(taskStatusDto)).thenThrow(new RuntimeException("Task status not updated"));
 

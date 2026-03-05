@@ -1,9 +1,8 @@
 package hexlet.code.app.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.app.dtos.TaskDto;
-import hexlet.code.app.dtos.TaskStatusDto;
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.TaskRequestDto;
+import hexlet.code.app.dtos.response.TaskResponseDto;
 import hexlet.code.app.services.TaskService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,25 +50,33 @@ class TaskControllerTest {
     @Test
     @DisplayName("Успешно получена задача")
     void getTask() throws Exception {
-        var taskDto = TaskDto.builder()
+        var request = TaskRequestDto.builder()
                 .id(1L)
-                .name("name")
+                .title("name")
                 .index(2)
-                .description("description")
-                .taskStatus(TaskStatusDto.builder().id(3L).slug("slug").build())
-                .assignee(UserDto.builder().id(4L).build())
+                .content("description")
+                .slug("slug")
+                .assigneeId(4L)
+                .build();
+        var response = TaskResponseDto.builder()
+                .id(1L)
+                .title("name")
+                .index(2)
+                .content("description")
+                .status("slug")
+                .assigneeId(4L)
                 .build();
 
-        when(taskService.findById(1L)).thenReturn(taskDto);
+        when(taskService.findById(1L)).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.id").value(1),
-                        jsonPath("$.name").value("name"),
+                        jsonPath("$.title").value("name"),
                         jsonPath("$.index").value(2),
-                        jsonPath("$.description").value("description"),
+                        jsonPath("$.content").value("description"),
                         jsonPath("$.assignee_id").value(4),
                         jsonPath("$.status").value("slug")
                 );
@@ -89,25 +96,43 @@ class TaskControllerTest {
     @Test
     @DisplayName("Успешно получены задачи")
     void getTasks() throws Exception {
-        var taskDto1 = TaskDto.builder()
+        var request1 = TaskRequestDto.builder()
                 .id(1L)
-                .name("First Task")
+                .title("First Task")
                 .index(10)
-                .description("First Description")
-                .taskStatus(TaskStatusDto.builder().slug("new").build())
-                .assignee(UserDto.builder().id(100L).build())
+                .content("First Description")
+                .slug("new")
+                .assigneeId(100L)
                 .build();
 
-        var taskDto2 = TaskDto.builder()
+        var request2 = TaskRequestDto.builder()
                 .id(2L)
-                .name("Second Task")
+                .title("Second Task")
                 .index(20)
-                .description("Second Description")
-                .taskStatus(TaskStatusDto.builder().slug("done").build())
-                .assignee(UserDto.builder().id(200L).build())
+                .content("Second Description")
+                .slug("done")
+                .assigneeId(200L)
                 .build();
 
-        when(taskService.findAll()).thenReturn(List.of(taskDto1, taskDto2));
+        var response1 = TaskResponseDto.builder()
+                .id(1L)
+                .title("First Task")
+                .index(10)
+                .content("First Description")
+                .status("new")
+                .assigneeId(100L)
+                .build();
+
+        var response2 = TaskResponseDto.builder()
+                .id(2L)
+                .title("Second Task")
+                .index(20)
+                .content("Second Description")
+                .status("done")
+                .assigneeId(200L)
+                .build();
+
+        when(taskService.findAll()).thenReturn(List.of(response1, response2));
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -116,13 +141,13 @@ class TaskControllerTest {
                         jsonPath("$.length()").value(2),
 
                         jsonPath("$[0].id").value(1),
-                        jsonPath("$[0].name").value("First Task"),
+                        jsonPath("$[0].title").value("First Task"),
                         jsonPath("$[0].index").value(10),
                         jsonPath("$[0].assignee_id").value(100),
                         jsonPath("$[0].status").value("new"),
 
                         jsonPath("$[1].id").value(2),
-                        jsonPath("$[1].name").value("Second Task"),
+                        jsonPath("$[1].title").value("Second Task"),
                         jsonPath("$[1].index").value(20),
                         jsonPath("$[1].assignee_id").value(200),
                         jsonPath("$[1].status").value("done")
@@ -133,29 +158,16 @@ class TaskControllerTest {
     @Test
     @DisplayName("При добавлении задачи произошла ошибка")
     void addTaskError() throws Exception {
-        var taskDto = TaskDto.builder()
+        var taskDto = TaskRequestDto.builder()
                 .id(1L)
-                .name("First Task")
+                .title("First Task")
                 .index(10)
-                .description("First Description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(10L)
-                        .name("New")
-                        .slug("new")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(100L)
-                        .firstName("Ivan")
-                        .lastName("Ivanov")
-                        .email("ivan@test.ru")
-                        .password("pass1")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .content("First Description")
+                .slug("new")
+                .assigneeId(200L)
                 .build();
 
-        when(taskService.create(any(TaskDto.class))).thenThrow(new RuntimeException("Произошла ошибка"));
+        when(taskService.create(any(TaskRequestDto.class))).thenThrow(new RuntimeException("Произошла ошибка"));
 
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -166,39 +178,35 @@ class TaskControllerTest {
     @Test
     @DisplayName("Успешное добавление задачи")
     void addTask() throws Exception {
-        var taskDto = TaskDto.builder()
+        var request = TaskRequestDto.builder()
                 .id(1L)
-                .name("First Task")
+                .title("First Task")
                 .index(2)
-                .description("First Description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(3L)
-                        .name("New")
-                        .slug("slug")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(4L)
-                        .firstName("Ivan")
-                        .lastName("Ivanov")
-                        .email("ivan@test.ru")
-                        .password("pass1")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .content("First Description")
+                .slug("slug")
+                .assigneeId(4L)
                 .build();
 
-        when(taskService.create(any(TaskDto.class))).thenReturn(taskDto);
+        var response = TaskResponseDto.builder()
+                .id(1L)
+                .title("First Task")
+                .index(2)
+                .content("First Description")
+                .status("slug")
+                .assigneeId(4L)
+                .build();
+
+        when(taskService.create(any(TaskRequestDto.class))).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(taskDto)))
+                        .content(objectMapper.writeValueAsString(response)))
                 .andExpectAll(
                         status().isCreated(),
                         jsonPath("$.id").value(1),
-                        jsonPath("$.name").value("First Task"),
+                        jsonPath("$.title").value("First Task"),
                         jsonPath("$.index").value(2),
-                        jsonPath("$.description").value("First Description"),
+                        jsonPath("$.content").value("First Description"),
                         jsonPath("$.status").value("slug"),
                         jsonPath("$.assignee_id").value(4),
                         jsonPath("$.taskLabelIds").doesNotExist()
@@ -208,29 +216,16 @@ class TaskControllerTest {
     @Test
     @DisplayName("При обновлении задачи произошла ошибка")
     void updateTaskError() throws Exception {
-        var taskDto = TaskDto.builder()
+        var taskDto = TaskRequestDto.builder()
                 .id(1L)
-                .name("First Task")
+                .title("First Task")
                 .index(2)
-                .description("First Description")
-                .taskStatus(TaskStatusDto.builder()
-                        .id(3L)
-                        .name("New")
-                        .slug("slug")
-                        .createdAt(LDT)
-                        .build())
-                .assignee(UserDto.builder()
-                        .id(4L)
-                        .firstName("Ivan")
-                        .lastName("Ivanov")
-                        .email("ivan@test.ru")
-                        .password("pass1")
-                        .createdAt(LDT)
-                        .updatedAt(LDT)
-                        .build())
+                .content("First Description")
+                .slug("slug")
+                .assigneeId(4L)
                 .build();
 
-        when(taskService.update(any(TaskDto.class))).thenThrow(new RuntimeException("Произошла ошибка"));
+        when(taskService.update(any(TaskRequestDto.class))).thenThrow(new RuntimeException("Произошла ошибка"));
 
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -241,26 +236,34 @@ class TaskControllerTest {
     @Test
     @DisplayName("Обновляем задачу")
     void updateTask() throws Exception {
-        var taskDto = TaskDto.builder()
+        var request = TaskRequestDto.builder()
                 .id(1L)
-                .name("First Task")
+                .title("First Task")
                 .index(2)
-                .description("First Description")
-                .taskStatus(TaskStatusDto.builder().id(3L).name("New").slug("slug").build())
-                .assignee(UserDto.builder().id(4L).firstName("Ivan").build())
+                .content("First Description")
+                .slug("slug")
+                .assigneeId(4L)
+                .build();
+        var response = TaskResponseDto.builder()
+                .id(1L)
+                .title("First Task")
+                .index(2)
+                .content("First Description")
+                .status("slug")
+                .assigneeId(4L)
                 .build();
 
-        when(taskService.update(any(TaskDto.class))).thenReturn(taskDto);
+        when(taskService.update(any(TaskRequestDto.class))).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(taskDto)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpectAll(
                         status().isOk(),
                         jsonPath("$.id").value(1),
-                        jsonPath("$.name").value("First Task"),
+                        jsonPath("$.title").value("First Task"),
                         jsonPath("$.index").value(2),
-                        jsonPath("$.description").value("First Description"),
+                        jsonPath("$.content").value("First Description"),
                         jsonPath("$.assignee_id").value(4),
                         jsonPath("$.status").value("slug")
                 );

@@ -1,8 +1,8 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.TaskDto;
-import hexlet.code.app.dtos.TaskStatusDto;
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.TaskRequestDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
 import hexlet.code.app.repositories.TaskStatusRepository;
 import hexlet.code.app.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +41,8 @@ class UserServiceTest {
     @ParameterizedTest
     @MethodSource("provideInvalidFields")
     @DisplayName("Создаём пользователя с незаполненным полем email")
-    void createUserWithEmptyEmailTest(String description, UserDto userDto, String expectedMessage) {
-        var ex = assertThrows(RuntimeException.class, () -> userService.create(userDto));
+    void createUserWithEmptyEmailTest(String description, UserRequestDto userRequestDto, String expectedMessage) {
+        var ex = assertThrows(RuntimeException.class, () -> userService.create(userRequestDto));
 
         assertTrue(ex.getMessage().contains(expectedMessage));
     }
@@ -50,13 +50,13 @@ class UserServiceTest {
     private static Stream<Arguments> provideInvalidFields() {
         return Stream.of(
                 Arguments.of("Пустой email",
-                        UserDto.builder().firstName("John").lastName("Doe").password("password").build(),
+                        UserRequestDto.builder().firstName("John").lastName("Doe").password("password").build(),
                         "Поле email должно быть заполненным"),
                 Arguments.of("Некорректный формат email",
-                        UserDto.builder().firstName("John").lastName("Doe").password("password").email("email").build(),
+                        UserRequestDto.builder().firstName("John").lastName("Doe").password("password").email("email").build(),
                         "Некорректный формат email"),
                 Arguments.of("Пустой password",
-                        UserDto.builder().firstName("John").lastName("Doe").email("1@ya.ru").build(),
+                        UserRequestDto.builder().firstName("John").lastName("Doe").email("1@ya.ru").build(),
                         "Поле password должно быть заполненным")
 
         );
@@ -65,7 +65,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Создаём пользователя и сразу пытаемся его получить")
     void createUserAndGetUserTest() {
-        var userDto = UserDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
 
         var createdUserDto = userService.create(userDto);
 
@@ -86,7 +86,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Создаём пользователя только с обязательными полями")
     void createUserWithOnlyRequiredFieldsTest() {
-        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().password("password").email("1@ya.ru").build();
         var user = userService.create(userDto);
 
         assertNotNull(user);
@@ -102,7 +102,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Пытаемся получить пользователя с некорректным id")
     void getUserWithInvalidIdTest() {
-        var userDto = UserDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
 
         userService.create(userDto);
 
@@ -114,7 +114,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Пытаемся получить пользователя по email и паролю")
     void getUserByEmailAndPasswordTest() {
-        var userDto = UserDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
 
         userService.create(userDto);
 
@@ -137,7 +137,7 @@ class UserServiceTest {
             "2@ya.ru, password2"
     })
     void getUserByEmailAndPasswordNotFoundTest(String email, String password) {
-        var userDto = UserDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().firstName("John").lastName("Doe").password("password").email("1@ya.ru").build();
 
         userService.create(userDto);
 
@@ -155,14 +155,14 @@ class UserServiceTest {
     @Test
     @DisplayName("Получаем всех пользователей")
     void getAllUsersTest() {
-        var userDto1 = UserDto.builder()
+        var userDto1 = UserRequestDto.builder()
                 .firstName("John")
                 .lastName("Doe")
                 .password("password")
                 .email("john.doe@example.com")
                 .build();
 
-        var userDto2 = UserDto.builder()
+        var userDto2 = UserRequestDto.builder()
                 .firstName("John2")
                 .lastName("Doe2")
                 .password("password2")
@@ -203,9 +203,9 @@ class UserServiceTest {
     @Test
     @DisplayName("У пользователя со всеми полями оставляем только email и password")
     void updateUserWithAllFieldsTest() {
-        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().password("password").email("1@ya.ru").build();
         var createdUserDto = userService.create(userDto);
-        var updatedDataDto = UserDto.builder().id(createdUserDto.getId()).email("1@ya.ru").password("password").build();
+        var updatedDataDto = UserRequestDto.builder().id(createdUserDto.getId()).email("1@ya.ru").password("password").build();
         var updatedUserDto = userService.update(updatedDataDto);
 
         assertNotNull(updatedUserDto);
@@ -222,9 +222,9 @@ class UserServiceTest {
     @Test
     @DisplayName("Пользователю с email и password добавляем все поля")
     void updateUserWithRequiredFieldsTest2() {
-        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().password("password").email("1@ya.ru").build();
         var createdUserDto = userService.create(userDto);
-        var updatedDataDto = UserDto.builder().id(createdUserDto.getId()).email("1@ya.ru").password("password").build();
+        var updatedDataDto = UserRequestDto.builder().id(createdUserDto.getId()).email("1@ya.ru").password("password").build();
         var updatedUserDto = userService.update(updatedDataDto);
 
         assertNotNull(updatedUserDto);
@@ -241,11 +241,11 @@ class UserServiceTest {
     @Test
     @DisplayName("Пытаемся удалить пользователя, который связан с задачей")
     void deleteUserWithTaskTest() {
-        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().password("password").email("1@ya.ru").build();
         var createdUserDto = userService.create(userDto);
-        var taskStatusDto = taskStatusService.create(TaskStatusDto.builder().name("name").slug("slug").build());
-        var taskDto = TaskDto.builder().assignee(createdUserDto)
-                .name("name").taskStatus(taskStatusDto).description("description").build();
+        var taskStatusDto = taskStatusService.create(TaskStatusRequestDto.builder().name("name").slug("slug").build());
+        var taskDto = TaskRequestDto.builder().assigneeId(createdUserDto.getId())
+                .title("name").slug(taskStatusDto.getSlug()).content("description").build();
 
         taskService.create(taskDto);
 

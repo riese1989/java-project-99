@@ -1,12 +1,13 @@
 package hexlet.code.app.utils;
 
-import hexlet.code.app.dtos.LabelDto;
+import hexlet.code.app.dtos.requests.LabelRequestDto;
+import hexlet.code.app.dtos.response.LabelResponseDto;
 import hexlet.code.app.models.Label;
 import hexlet.code.app.repositories.LabelRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LabelConverter implements Converter<LabelDto, Label>{
+public class LabelConverter implements Converter<LabelRequestDto, LabelResponseDto, Label>{
     private final LabelRepository labelRepository;
 
     public LabelConverter(LabelRepository labelRepository) {
@@ -14,7 +15,7 @@ public class LabelConverter implements Converter<LabelDto, Label>{
     }
 
     @Override
-    public Label convertToEntity(LabelDto dto) {
+    public Label convertToEntity(LabelRequestDto dto) {
         if (dto == null) {
             return null;
         }
@@ -36,12 +37,12 @@ public class LabelConverter implements Converter<LabelDto, Label>{
     }
 
     @Override
-    public LabelDto convertToDto(Label entity) {
+    public LabelResponseDto convertToResponseDto(Label entity) {
         if (entity == null) {
             return null;
         }
 
-        return LabelDto.builder()
+        return LabelResponseDto.builder()
                     .id(entity.getId())
                     .name(entity.getName())
                     .createdAt(entity.getCreatedAt())
@@ -49,7 +50,7 @@ public class LabelConverter implements Converter<LabelDto, Label>{
     }
 
     @Override
-    public void updateEntity(LabelDto dto, Label entity) {
+    public void updateEntity(LabelRequestDto dto, Label entity) {
         if (dto.getName() != null)
             entity.setName(dto.getName());
     }

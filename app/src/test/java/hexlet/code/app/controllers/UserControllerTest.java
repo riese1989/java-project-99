@@ -2,7 +2,8 @@ package hexlet.code.app.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
+import hexlet.code.app.dtos.response.UserResponseDto;
 import hexlet.code.app.services.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,15 @@ class UserControllerTest {
     @Test
     @DisplayName("Успешно получаем пользователя")
     void getUserSuccessTest() throws Exception {
-        var userDto = UserDto.builder()
+        var request = UserRequestDto.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .password("password")
+                .email("john.doe@example.com")
+                .createdAt(LocalDateTime.now())
+                .build();
+        var response = UserResponseDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
@@ -57,11 +66,11 @@ class UserControllerTest {
                 .build();
 
 
-        when(userService.findById(1L)).thenReturn(userDto);
+        when(userService.findById(1L)).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(userDto)))
+                        .content(asJsonString(request)))
                 .andExpectAll(status().isOk(),
                         jsonPath("$.id").exists(),
                         jsonPath("$.firstName").value("John"),
@@ -75,7 +84,7 @@ class UserControllerTest {
     @Test
     @DisplayName("Получаем всех пользователей")
     void getAllUsersTest() throws Exception {
-        var userDto1 = UserDto.builder()
+        var request1 = UserRequestDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
@@ -84,7 +93,24 @@ class UserControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        var userDto2 = UserDto.builder()
+        var request2 = UserRequestDto.builder()
+                .id(2L)
+                .firstName("John2")
+                .lastName("Doe2")
+                .password("password2")
+                .email("john2.doe@example.com")
+                .createdAt(LocalDateTime.now())
+                .build();
+        var response1 = UserResponseDto.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .password("password")
+                .email("john.doe@example.com")
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        var response2 = UserResponseDto.builder()
                 .id(2L)
                 .firstName("John2")
                 .lastName("Doe2")
@@ -94,7 +120,7 @@ class UserControllerTest {
                 .build();
 
 
-        when(userService.findAll()).thenReturn(List.of(userDto1, userDto2));
+        when(userService.findAll()).thenReturn(List.of(response1, response2));
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -129,7 +155,15 @@ class UserControllerTest {
     @Test
     @DisplayName("Создаём пользователя")
     void createUserTest() throws Exception {
-        var userDto = UserDto.builder()
+        var request = UserRequestDto.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .password("password")
+                .email("john.doe@example.com")
+                .createdAt(LocalDateTime.now())
+                .build();
+        var response = UserResponseDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
@@ -139,11 +173,11 @@ class UserControllerTest {
                 .build();
 
 
-        when(userService.create(userDto)).thenReturn(userDto);
+        when(userService.create(request)).thenReturn(response);
 
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(userDto)))
+                        .content(asJsonString(request)))
                 .andExpectAll(status().isCreated(),
                         jsonPath("$.id").value(1L),
                         jsonPath("$.firstName").value("John"),
@@ -156,7 +190,7 @@ class UserControllerTest {
     @Test
     @DisplayName("Ошибка при создании пользователя")
     void createUserErrorTest() throws Exception {
-        var userDto = UserDto.builder()
+        var userDto = UserRequestDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
@@ -177,12 +211,12 @@ class UserControllerTest {
     @Test
     @DisplayName("Обновляем пользователя")
     void updateUserTest() throws Exception {
-        var updatedUserDto = UserDto.builder()
+        var updatedUserDto = UserRequestDto.builder()
                 .password("password")
                 .email("john.doe@example.com")
                 .build();
 
-        var userDto = UserDto.builder()
+        var userDto = UserResponseDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
@@ -193,7 +227,7 @@ class UserControllerTest {
                 .build();
 
 
-        when(userService.update(any(UserDto.class))).thenReturn(userDto);
+        when(userService.update(any(UserRequestDto.class))).thenReturn(userDto);
 
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -211,12 +245,12 @@ class UserControllerTest {
     @Test
     @DisplayName("При обновлении пользователя произошла ошибка")
     void updateUserErrorTest() throws Exception {
-        var updatedUserDto = UserDto.builder()
+        var updatedUserDto = UserRequestDto.builder()
                 .password("password")
                 .email("john.doe@example.com")
                 .build();
 
-        when(userService.update(any(UserDto.class))).thenThrow(new RuntimeException("Error"));
+        when(userService.update(any(UserRequestDto.class))).thenThrow(new RuntimeException("Error"));
 
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)

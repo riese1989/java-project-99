@@ -1,6 +1,7 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
+import hexlet.code.app.dtos.response.UserResponseDto;
 import hexlet.code.app.models.User;
 import hexlet.code.app.repositories.UserRepository;
 import hexlet.code.app.utils.UserConverter;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class UserService extends AbstractCrudService<UserDto, User> implements CommandLineRunner, UserDetailsService {
+public class UserService extends AbstractCrudService<UserRequestDto, UserResponseDto, User> implements CommandLineRunner, UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserConverter userConverter;
@@ -27,7 +28,7 @@ public class UserService extends AbstractCrudService<UserDto, User> implements C
         this.userConverter = userConverter;
     }
 
-    public UserDto findByEmailAndPassword(String email, String password) {
+    public UserResponseDto findByEmailAndPassword(String email, String password) {
         var user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Пользователь %s не найден".formatted(email)));
 
@@ -35,7 +36,7 @@ public class UserService extends AbstractCrudService<UserDto, User> implements C
             throw new RuntimeException("Неверный пароль для пользователя %s".formatted(email));
         }
 
-        return userConverter.convertToDto(user);
+        return userConverter.convertToResponseDto(user);
     }
 
     @Override

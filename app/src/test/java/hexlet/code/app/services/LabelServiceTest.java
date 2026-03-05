@@ -1,6 +1,7 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.LabelDto;
+import hexlet.code.app.dtos.requests.LabelRequestDto;
+import hexlet.code.app.dtos.response.LabelResponseDto;
 import hexlet.code.app.repositories.LabelRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +30,7 @@ class LabelServiceTest {
     @Test
     @DisplayName("Создание метки через стандартный метод create")
     void createLabelTest() {
-        var dto = LabelDto.builder().name("Bug").build();
+        var dto = LabelRequestDto.builder().name("Bug").build();
         var created = labelService.create(dto);
 
         assertNotNull(created.getId());
@@ -40,13 +41,13 @@ class LabelServiceTest {
     @Test
     @DisplayName("Тест метода findOrCreate: создание новых и поиск существующих")
     void findOrCreateTest() {
-        labelService.create(LabelDto.builder().name("Existing").build());
+        labelService.create(LabelRequestDto.builder().name("Existing").build());
 
         assertEquals(1, labelRepository.count());
 
         var labelDtos = Set.of(
-                LabelDto.builder().name("Existing").build(),
-                LabelDto.builder().name("NewOne").build()
+                LabelRequestDto.builder().name("Existing").build(),
+                LabelRequestDto.builder().name("NewOne").build()
         );
 
         labelService.findOrCreate(labelDtos);
@@ -67,9 +68,9 @@ class LabelServiceTest {
     @Test
     @DisplayName("Обновление названия метки")
     void updateLabelTest() {
-        var created = labelService.create(LabelDto.builder().name("OldName").build());
+        var created = labelService.create(LabelRequestDto.builder().name("OldName").build());
 
-        var updateDto = LabelDto.builder()
+        var updateDto = LabelRequestDto.builder()
                 .id(created.getId())
                 .name("NewName")
                 .build();
@@ -83,7 +84,7 @@ class LabelServiceTest {
     @Test
     @DisplayName("Удаление метки")
     void deleteLabelTest() {
-        var created = labelService.create(LabelDto.builder().name("DeleteMe").build());
+        var created = labelService.create(LabelRequestDto.builder().name("DeleteMe").build());
         labelService.delete(created.getId());
 
         assertFalse(labelRepository.findById(created.getId()).isPresent());
@@ -93,8 +94,8 @@ class LabelServiceTest {
     @DisplayName("findOrCreate должен создавать новые метки, если их нет в базе")
     void findOrCreateNewLabelsTest() {
         var labelDtos = Set.of(
-                LabelDto.builder().name("feature").build(),
-                LabelDto.builder().name("bug").build()
+                LabelRequestDto.builder().name("feature").build(),
+                LabelRequestDto.builder().name("bug").build()
         );
 
         labelService.findOrCreate(labelDtos);
@@ -102,7 +103,7 @@ class LabelServiceTest {
         var allLabels = labelService.findAll();
         assertEquals(2, allLabels.size());
 
-        var names = allLabels.stream().map(LabelDto::getName).toList();
+        var names = allLabels.stream().map(LabelResponseDto::getName).toList();
         assertTrue(names.contains("feature"));
         assertTrue(names.contains("bug"));
     }
@@ -110,13 +111,13 @@ class LabelServiceTest {
     @Test
     @DisplayName("findOrCreate не должен создавать дубликаты существующих меток")
     void findOrCreateExistingLabelsTest() {
-        labelService.create(LabelDto.builder().name("urgent").build());
+        labelService.create(LabelRequestDto.builder().name("urgent").build());
 
         assertEquals(1, labelRepository.count());
 
         var labelDtos = Set.of(
-                LabelDto.builder().name("urgent").build(),
-                LabelDto.builder().name("task").build()
+                LabelRequestDto.builder().name("urgent").build(),
+                LabelRequestDto.builder().name("task").build()
         );
 
         labelService.findOrCreate(labelDtos);

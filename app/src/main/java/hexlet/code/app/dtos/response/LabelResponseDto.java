@@ -1,4 +1,4 @@
-package hexlet.code.app.dtos;
+package hexlet.code.app.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LabelDto extends BaseDto {
+public class LabelResponseDto extends BaseResponseDto {
     private String name;
     private LocalDateTime createdAt;
 }

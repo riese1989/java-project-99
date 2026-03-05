@@ -1,8 +1,8 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.TaskDto;
-import hexlet.code.app.dtos.TaskStatusDto;
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.TaskRequestDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
 import hexlet.code.app.repositories.TaskRepository;
 import hexlet.code.app.repositories.TaskStatusRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,7 @@ public class TaskStatusServiceTest {
     @Test
     @DisplayName("Успешно создаём статус и получаем его")
     public void testCreateStatusSuccess() {
-        var taskStatusDto = TaskStatusDto.builder().name("New").slug("slug").build();
+        var taskStatusDto = TaskStatusRequestDto.builder().name("New").slug("slug").build();
 
         var createdTaskStatus = taskStatusService.create(taskStatusDto);
         var expectedTaskStatus = taskStatusService.findById(createdTaskStatus.getId());
@@ -61,7 +61,7 @@ public class TaskStatusServiceTest {
             "name,,Поле slug должно быть заполненным"
     })
     public void testCreateStatusFail(String name, String slug, String expectedMessage) {
-        var taskStatusDto = TaskStatusDto.builder().name(name).slug(slug).build();
+        var taskStatusDto = TaskStatusRequestDto.builder().name(name).slug(slug).build();
         var ex = assertThrows(RuntimeException.class, () -> taskStatusService.create(taskStatusDto));
 
         assertTrue(ex.getMessage().contains(expectedMessage));
@@ -70,8 +70,8 @@ public class TaskStatusServiceTest {
     @Test
     @DisplayName("Получаем все статусы")
     public void testFindAll() {
-        var taskStatusDto1 = TaskStatusDto.builder().name("New").slug("slug").build();
-        var taskStatusDto2 = TaskStatusDto.builder().name("In progress").slug("slug2").build();
+        var taskStatusDto1 = TaskStatusRequestDto.builder().name("New").slug("slug").build();
+        var taskStatusDto2 = TaskStatusRequestDto.builder().name("In progress").slug("slug2").build();
         var id1 = taskStatusService.create(taskStatusDto1).getId();
         var id2 = taskStatusService.create(taskStatusDto2).getId();
         var taskStatuses = taskStatusService.findAll();
@@ -98,9 +98,9 @@ public class TaskStatusServiceTest {
     @Test
     @DisplayName("Удаляем статус")
     public void testDelete() {
-        var taskStatusDto1 = TaskStatusDto.builder().name("New").slug("slug").build();
-        var taskStatusDto2 = TaskStatusDto.builder().name("In progress").slug("slug2").build();
-        var taskStatusDto3 = TaskStatusDto.builder().name("Done").slug("slug3").build();
+        var taskStatusDto1 = TaskStatusRequestDto.builder().name("New").slug("slug").build();
+        var taskStatusDto2 = TaskStatusRequestDto.builder().name("In progress").slug("slug2").build();
+        var taskStatusDto3 = TaskStatusRequestDto.builder().name("Done").slug("slug3").build();
         var createdTaskStatus1 = taskStatusService.create(taskStatusDto1);
         var createdTaskStatus2 = taskStatusService.create(taskStatusDto2);
         var createdTaskStatus3 = taskStatusService.create(taskStatusDto3);
@@ -131,12 +131,12 @@ public class TaskStatusServiceTest {
     @Test
     @DisplayName("Обновляем статус")
     public void testUpdate() {
-        var taskStatusDto = TaskStatusDto.builder().name("New").slug("slug").build();
+        var taskStatusDto = TaskStatusRequestDto.builder().name("New").slug("slug").build();
         var createdTaskStatus = taskStatusService.create(taskStatusDto);
 
         assertNotNull(createdTaskStatus);
 
-        var updateStatusDto = TaskStatusDto.builder().id(createdTaskStatus.getId()).name("Updated").slug("slug2").build();
+        var updateStatusDto = TaskStatusRequestDto.builder().id(createdTaskStatus.getId()).name("Updated").slug("slug2").build();
         var updatedTaskStatus = taskStatusService.update(updateStatusDto);
 
         assertNotNull(updatedTaskStatus);
@@ -149,11 +149,11 @@ public class TaskStatusServiceTest {
     @Test
     @DisplayName("Пытаемся удалить статус, связанный с задачей")
     public void testDeleteFail() {
-        var userDto = UserDto.builder().password("password").email("1@ya.ru").build();
+        var userDto = UserRequestDto.builder().password("password").email("1@ya.ru").build();
         var createdUserDto = userService.create(userDto);
-        var taskStatusDto = taskStatusService.create(TaskStatusDto.builder().name("name").slug("slug").build());
-        var taskDto = TaskDto.builder().assignee(createdUserDto)
-                .name("name").taskStatus(taskStatusDto).description("description").build();
+        var taskStatusDto = taskStatusService.create(TaskStatusRequestDto.builder().name("name").slug("slug").build());
+        var taskDto = TaskRequestDto.builder().assigneeId(createdUserDto.getId())
+                .title("name").slug(taskStatusDto.getSlug()).content("description").build();
 
         taskService.create(taskDto);
 

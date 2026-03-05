@@ -1,4 +1,4 @@
-package hexlet.code.app.dtos;
+package hexlet.code.app.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +9,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseDto {
+public class BaseResponseDto {
     protected Long id;
 }

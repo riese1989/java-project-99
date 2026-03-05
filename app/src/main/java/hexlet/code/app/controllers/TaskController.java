@@ -1,6 +1,7 @@
 package hexlet.code.app.controllers;
 
-import hexlet.code.app.dtos.TaskDto;
+import hexlet.code.app.dtos.requests.TaskRequestDto;
+import hexlet.code.app.dtos.response.TaskResponseDto;
 import hexlet.code.app.services.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDto> getTaskById(@PathVariable final Long id) {
+    public ResponseEntity<TaskResponseDto> getTaskById(@PathVariable final Long id) {
         try {
             var taskDto = taskService.findById(id);
 
@@ -44,7 +45,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskDto>> getAllTasks() {
+    public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
         try {
             var taskDtos = taskService.findAll();
 
@@ -62,9 +63,9 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TaskDto> createTask(@RequestBody TaskDto taskDto) {
+    public ResponseEntity<TaskResponseDto> createTask(@RequestBody TaskRequestDto taskRequestDto) {
         try {
-            var createdTask = taskService.create(taskDto);
+            var createdTask = taskService.create(taskRequestDto);
 
             return new ResponseEntity<>(createdTask, CREATED);
         } catch (Exception e) {
@@ -87,11 +88,11 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable final Long id, @RequestBody TaskDto taskDto) {
+    public ResponseEntity<TaskResponseDto> updateTask(@PathVariable final Long id, @RequestBody TaskRequestDto taskRequestDto) {
         try {
-            taskDto.setId(id);
+            taskRequestDto.setId(id);
 
-            var updatedUser = taskService.update(taskDto);
+            var updatedUser = taskService.update(taskRequestDto);
 
             return new ResponseEntity<>(updatedUser, OK);
         }
@@ -101,4 +102,19 @@ public class TaskController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
+//    @GetMapping
+//    public ResponseEntity<List<TaskDto>> getTasks(FilterRequestDto filter) {
+//        try {
+//            var taskDtos = taskService.findAll(filter);
+//
+//            return ResponseEntity.ok()
+//                    .header("X-Total-Count", String.valueOf(taskDtos.size()))
+//                    .header("Access-Control-Expose-Headers", "X-Total-Count")
+//                    .body(taskDtos);
+//        } catch (Exception e) {
+//            log.error("Error filtering tasks: {}", e.getMessage());
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 }

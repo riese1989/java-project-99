@@ -1,12 +1,13 @@
 package hexlet.code.app.utils;
 
-import hexlet.code.app.dtos.TaskStatusDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.response.TaskStatusResponseDto;
 import hexlet.code.app.models.TaskStatus;
 import hexlet.code.app.repositories.TaskStatusRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TaskStatusConverter implements Converter<TaskStatusDto, TaskStatus> {
+public class TaskStatusConverter implements Converter<TaskStatusRequestDto, TaskStatusResponseDto, TaskStatus> {
     private final TaskStatusRepository taskStatusRepository;
 
     public TaskStatusConverter(TaskStatusRepository taskStatusRepository) {
@@ -14,7 +15,7 @@ public class TaskStatusConverter implements Converter<TaskStatusDto, TaskStatus>
     }
 
     @Override
-    public TaskStatus convertToEntity(TaskStatusDto dto) {
+    public TaskStatus convertToEntity(TaskStatusRequestDto dto) {
         if (dto == null) {
             return null;
         }
@@ -41,12 +42,12 @@ public class TaskStatusConverter implements Converter<TaskStatusDto, TaskStatus>
     }
 
     @Override
-    public TaskStatusDto convertToDto(TaskStatus entity) {
+    public TaskStatusResponseDto convertToResponseDto(TaskStatus entity) {
         if (entity == null) {
             return null;
         }
 
-        return TaskStatusDto.builder()
+        return TaskStatusResponseDto.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .slug(entity.getSlug())
@@ -55,7 +56,7 @@ public class TaskStatusConverter implements Converter<TaskStatusDto, TaskStatus>
     }
 
     @Override
-    public void updateEntity(TaskStatusDto dto, TaskStatus entity) {
+    public void updateEntity(TaskStatusRequestDto dto, TaskStatus entity) {
         if (dto.getName() != null) {
             entity.setName(dto.getName());
         }

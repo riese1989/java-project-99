@@ -1,6 +1,7 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.TaskStatusDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.response.TaskStatusResponseDto;
 import hexlet.code.app.models.TaskStatus;
 import hexlet.code.app.repositories.TaskStatusRepository;
 import hexlet.code.app.utils.TaskStatusConverter;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class TaskStatusService extends AbstractCrudService<TaskStatusDto, TaskStatus> implements CommandLineRunner {
+public class TaskStatusService extends AbstractCrudService<TaskStatusRequestDto, TaskStatusResponseDto, TaskStatus> implements CommandLineRunner {
 
     public TaskStatusService(TaskStatusRepository taskStatusRepository, TaskStatusConverter taskStatusConverter) {
         super(taskStatusRepository, taskStatusConverter);
@@ -29,7 +30,7 @@ public class TaskStatusService extends AbstractCrudService<TaskStatusDto, TaskSt
         for (int i = 0; i < data.length; i += 2) {
             var name = data[i];
             var slug = data[i + 1];
-            var taskStatusDto = TaskStatusDto.builder().name(name).slug(slug).build();
+            var taskStatusDto = TaskStatusRequestDto.builder().name(name).slug(slug).build();
 
             create(taskStatusDto);
 

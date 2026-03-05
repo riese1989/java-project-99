@@ -1,9 +1,12 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.LabelDto;
-import hexlet.code.app.dtos.TaskDto;
-import hexlet.code.app.dtos.TaskStatusDto;
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.LabelRequestDto;
+import hexlet.code.app.dtos.requests.TaskRequestDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
+import hexlet.code.app.dtos.response.TaskResponseDto;
+import hexlet.code.app.dtos.response.TaskStatusResponseDto;
+import hexlet.code.app.dtos.response.UserResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,16 +32,16 @@ class TaskServiceTest {
     private LabelService labelService;
     @Autowired
     private UserService userService;
-    private TaskStatusDto existingStatus;
-    private UserDto assignee;
+    private TaskStatusResponseDto existingStatus;
+    private UserResponseDto assignee;
 
     @BeforeEach
     void setUp() {
-        var statusDto = TaskStatusDto.builder().name("New").slug("new_slug").build();
+        var statusDto = TaskStatusRequestDto.builder().name("New").slug("new_slug").build();
 
         existingStatus = taskStatusService.create(statusDto);
 
-        var userDto = UserDto.builder()
+        var userDto = UserRequestDto.builder()
                 .email("test@mail.com")
                 .password("password")
                 .firstName("Ivan")
@@ -49,82 +52,83 @@ class TaskServiceTest {
     @Test
     @DisplayName("Создаем задачу и проверяем её сохранение")
     void createAndGetTaskTest() {
-        var labelDtos = new HashSet<LabelDto>();
+        var labelDtos = new HashSet<LabelRequestDto>();
 
-        labelDtos.add(LabelDto.builder().name("Bug").build());
+        labelDtos.add(LabelRequestDto.builder().name("Bug").build());
 
-        var taskDto = TaskDto.builder()
-                .name("Fix bug")
+        var taskDto = TaskRequestDto.builder()
+                .title("Fix bug")
                 .index(1)
-                .description("Long description")
-                .taskStatus(existingStatus)
+                .content("Long description")
+                .slug(existingStatus.getSlug())
                 .labels(labelDtos)
-                .assignee(assignee)
+                .assigneeId(assignee.getId())
                 .build();
 
         var created = taskService.create(taskDto);
 
         assertNotNull(created.getId());
-        assertEquals("Fix bug", created.getName());
-        assertEquals("New", created.getTaskStatus().getName());
+        assertEquals("Fix bug", created.getTitle());
+        assertEquals("new_slug", created.getStatus());
         assertNotNull(created.getCreatedAt());
-        assertEquals(assignee.getEmail(), created.getAssignee().getEmail());
 
         var found = taskService.findById(created.getId());
 
-        assertEquals("Long description", found.getDescription());
+        assertEquals("Long description", found.getContent());
         verify(labelService).findOrCreate(labelDtos);
     }
 
     @Test
     @DisplayName("Обновляем только имя задачи и метку")
     void updateTaskNameTest() {
-        var labelDtos = new HashSet<LabelDto>();
+        var labelDtos = new HashSet<LabelRequestDto>();
 
-        labelDtos.add(LabelDto.builder().name("Bug").build());
+        labelDtos.add(LabelRequestDto.builder().name("Bug").build());
 
-        var taskDto = TaskDto.builder()
-                .name("Old Name")
-                .taskStatus(existingStatus)
-                .assignee(assignee)
+        var taskDto = TaskRequestDto.builder()
+                .title("Old Name")
+                .slug(existingStatus.getSlug())
+                .assigneeId(assignee.getId())
                 .labels(labelDtos)
                 .build();
         var created = taskService.create(taskDto);
 
-        labelDtos.add(LabelDto.builder().name("Fix").build());
+        labelDtos.add(LabelRequestDto.builder().name("Fix").build());
 
-        var updateData = TaskDto.builder()
+        var updateData = TaskRequestDto.builder()
                 .id(created.getId())
-                .name("New Name")
+                .title("New Name")
                 .labels(labelDtos)
                 .build();
 
         var updated = taskService.update(updateData);
 
-        assertEquals("New Name", updated.getName());
-        assertEquals(existingStatus.getName(), updated.getTaskStatus().getName());
+        assertEquals("New Name", updated.getTitle());
+        assertEquals(existingStatus.getSlug(), updated.getStatus());
         verify(labelService, times(2)).findOrCreate(labelDtos);
     }
 
     @Test
     @DisplayName("Создаем задачу с исполнителем")
     void createTaskWithAssigneeTest() {
-        var taskDto = TaskDto.builder()
-                .name("Task with User")
-                .taskStatus(existingStatus)
-                .assignee(assignee)
+        var taskDto = TaskRequestDto.builder()
+                .title("Task with User")
+                .slug(existingStatus.getSlug())
+                .assigneeId(assignee.getId())
                 .build();
 
         var createdTask = taskService.create(taskDto);
 
-        assertNotNull(createdTask.getAssignee());
-        assertEquals("test@mail.com", createdTask.getAssignee().getEmail());
+        assertNotNull(createdTask.getAssigneeId());
     }
 
     @Test
     @DisplayName("Удаление задачи")
     void deleteTaskTest() {
-        var taskDto = TaskDto.builder().name("To be deleted").assignee(assignee).taskStatus(existingStatus).build();
+        var taskDto = TaskRequestDto.builder()
+                .title("To be deleted")
+                .assigneeId(assignee.getId())
+                .slug(existingStatus.getSlug()).build();
         var created = taskService.create(taskDto);
 
         taskService.delete(created.getId());
@@ -135,8 +139,15 @@ class TaskServiceTest {
     @Test
     @DisplayName("Получение всех задач")
     void getAllTasksTest() {
-        taskService.create(TaskDto.builder().name("T1").taskStatus(existingStatus).assignee(assignee).build());
-        taskService.create(TaskDto.builder().name("T2").taskStatus(existingStatus).assignee(assignee).build());
+        taskService.create(TaskRequestDto.builder()
+                .title("T1")
+                .slug(existingStatus.getSlug())
+                .assigneeId(assignee.getId())
+                .build());
+        taskService.create(TaskRequestDto.builder()
+                .title("T2")
+                .slug(existingStatus.getSlug())
+                .assigneeId(assignee.getId()).build());
 
         var tasks = taskService.findAll();
         assertEquals(2, tasks.size());

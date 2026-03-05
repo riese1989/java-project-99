@@ -1,13 +1,14 @@
 package hexlet.code.app.utils;
 
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
+import hexlet.code.app.dtos.response.UserResponseDto;
 import hexlet.code.app.models.User;
 import hexlet.code.app.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserConverter implements Converter<UserDto, User> {
+public class UserConverter implements Converter<UserRequestDto, UserResponseDto, User> {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
@@ -17,7 +18,7 @@ public class UserConverter implements Converter<UserDto, User> {
     }
 
     @Override
-    public User convertToEntity(UserDto dto) {
+    public User convertToEntity(UserRequestDto dto) {
         if (dto == null) {
             return null;
         }
@@ -50,12 +51,12 @@ public class UserConverter implements Converter<UserDto, User> {
     }
 
     @Override
-    public UserDto convertToDto(User entity) {
+    public UserResponseDto convertToResponseDto(User entity) {
         if (entity == null) {
             return null;
         }
 
-        return UserDto.builder()
+        return UserResponseDto.builder()
                 .id(entity.getId())
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
@@ -65,7 +66,7 @@ public class UserConverter implements Converter<UserDto, User> {
     }
 
     @Override
-    public void updateEntity(UserDto dto, User entity) {
+    public void updateEntity(UserRequestDto dto, User entity) {
         if (dto.getFirstName() != null) {
             entity.setFirstName(dto.getFirstName());
         }

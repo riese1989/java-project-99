@@ -1,6 +1,7 @@
 package hexlet.code.app.controllers;
 
-import hexlet.code.app.dtos.TaskStatusDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.response.TaskStatusResponseDto;
 import hexlet.code.app.services.TaskStatusService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class TaskStatusController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskStatusDto> getTaskStatusById(@PathVariable final Long id) {
+    public ResponseEntity<TaskStatusResponseDto> getTaskStatusById(@PathVariable final Long id) {
         try {
             var taskStatusDto = taskStatusService.findById(id);
 
@@ -45,7 +46,7 @@ public class TaskStatusController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskStatusDto>> getAllTaskStatuses() {
+    public ResponseEntity<List<TaskStatusResponseDto>> getAllTaskStatuses() {
         try {
             var taskStatusDtos = taskStatusService.findAll();
 
@@ -63,9 +64,9 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TaskStatusDto> createTaskStatus(@Valid @RequestBody TaskStatusDto taskStatusDto) {
+    public ResponseEntity<TaskStatusResponseDto> createTaskStatus(@Valid @RequestBody TaskStatusRequestDto taskStatusRequestDto) {
         try {
-            var createdTaskStatus = taskStatusService.create(taskStatusDto);
+            var createdTaskStatus = taskStatusService.create(taskStatusRequestDto);
 
             return new ResponseEntity<>(createdTaskStatus, CREATED);
         } catch (Exception e) {
@@ -88,11 +89,11 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskStatusDto> updateTaskStatus(@PathVariable final Long id, @RequestBody TaskStatusDto taskStatusDto) {
+    public ResponseEntity<TaskStatusResponseDto> updateTaskStatus(@PathVariable final Long id, @RequestBody TaskStatusRequestDto taskStatusRequestDto) {
         try {
-            taskStatusDto.setId(id);
+            taskStatusRequestDto.setId(id);
 
-            var updatedUser = taskStatusService.update(taskStatusDto);
+            var updatedUser = taskStatusService.update(taskStatusRequestDto);
 
             return new ResponseEntity<>(updatedUser, OK);
         }

@@ -1,6 +1,9 @@
 package hexlet.code.app.utils;
 
-import hexlet.code.app.dtos.TaskDto;
+import hexlet.code.app.dtos.requests.TaskRequestDto;
+import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
+import hexlet.code.app.dtos.response.TaskResponseDto;
 import hexlet.code.app.models.Task;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +12,7 @@ import java.util.stream.Collectors;
 import static java.util.Optional.ofNullable;
 
 @Service
-public class TaskConverter implements Converter<TaskDto, Task> {
+public class TaskConverter implements Converter<TaskRequestDto, TaskResponseDto, Task> {
     private final TaskStatusConverter taskStatusConverter;
     private final UserConverter userConverter;
     private final LabelConverter labelConverter;
@@ -23,7 +26,7 @@ public class TaskConverter implements Converter<TaskDto, Task> {
 
 
     @Override
-    public Task convertToEntity(TaskDto dto) {
+    public Task convertToEntity(TaskRequestDto dto) {
         if (dto == null) {
             return null;
         }
@@ -31,56 +34,65 @@ public class TaskConverter implements Converter<TaskDto, Task> {
         var task = new Task();
 
         task.setId(dto.getId());
-        task.setName(dto.getName());
+        task.setName(dto.getTitle());
         task.setIndex(dto.getIndex());
-        task.setDescription(dto.getDescription());
-        task.setTaskStatus(taskStatusConverter.convertToEntity(dto.getTaskStatus()));
-        task.setAssignee(userConverter.convertToEntity(dto.getAssignee()));
+        task.setDescription(dto.getContent());
+
+        var taskStatusRequestDto = new TaskStatusRequestDto();
+
+        taskStatusRequestDto.setSlug(dto.getSlug());
+        task.setTaskStatus(taskStatusConverter.convertToEntity(taskStatusRequestDto));
+
+        var userRequestDto = new UserRequestDto();
+
+        userRequestDto.setId(dto.getAssigneeId());
+        task.setAssignee(userConverter.convertToEntity(userRequestDto));
         ofNullable(dto.getLabels()).ifPresent(labels ->
                 task.setLabels(labels.stream()
                         .map(labelConverter::convertToEntity).collect(Collectors.toSet())));
-
-        if(dto.getCreatedAt() != null) {
-            task.setCreatedAt(dto.getCreatedAt());
-        }
 
         return task;
     }
 
     @Override
-    public TaskDto convertToDto(Task entity) {
+    public TaskResponseDto convertToResponseDto(Task entity) {
         if (entity == null) {
             return null;
         }
 
-        return TaskDto.builder()
+
+        return TaskResponseDto.builder()
                 .id(entity.getId())
-                .name(entity.getName())
+                .title(entity.getName())
                 .index(entity.getIndex())
-                .description(entity.getDescription())
-                .taskStatus(taskStatusConverter.convertToDto(entity.getTaskStatus()))
-                .assignee(userConverter.convertToDto(entity.getAssignee()))
-                .labels(entity.getLabels().stream().map(labelConverter::convertToDto).collect(Collectors.toSet()))
+                .content(entity.getDescription())
+                .status(taskStatusConverter.convertToResponseDto(entity.getTaskStatus()).getSlug())
+                .assigneeId(userConverter.convertToResponseDto(entity.getAssignee()).getId())
+                .labels(entity.getLabels().stream().map(labelConverter::convertToResponseDto).collect(Collectors.toSet()))
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
 
     @Override
-    public void updateEntity(TaskDto dto, Task entity) {
-        if (dto.getName() != null) {
-            entity.setName(dto.getName());
+    public void updateEntity(TaskRequestDto dto, Task entity) {
+        if (dto.getTitle() != null) {
+            entity.setName(dto.getTitle());
         }
 
         if (dto.getIndex() != null) {
             entity.setIndex(dto.getIndex());
         }
 
-        if (dto.getDescription() != null) {
-            entity.setDescription(dto.getDescription());
+        if (dto.getContent() != null) {
+            entity.setDescription(dto.getContent());
         }
 
-        if (dto.getTaskStatus() != null) {
-            entity.setTaskStatus(taskStatusConverter.convertToEntity(dto.getTaskStatus()));
+        if (dto.getSlug() != null) {
+            var taskStatusRequestDto = new TaskStatusRequestDto();
+
+            taskStatusRequestDto.setSlug(dto.getSlug());
+
+            entity.setTaskStatus(taskStatusConverter.convertToEntity(taskStatusRequestDto));
         }
 
         if (dto.getLabels() != null) {
@@ -88,8 +100,12 @@ public class TaskConverter implements Converter<TaskDto, Task> {
                     .map(labelConverter::convertToEntity).collect(Collectors.toSet()));
         }
 
-        if (dto.getAssignee() != null) {
-            entity.setAssignee(userConverter.convertToEntity(dto.getAssignee()));
+        if (dto.getAssigneeId() != null) {
+            var userRequestDto = new UserRequestDto();
+
+            userRequestDto.setId(dto.getAssigneeId());
+
+            entity.setAssignee(userConverter.convertToEntity(userRequestDto));
         }
     }
 }

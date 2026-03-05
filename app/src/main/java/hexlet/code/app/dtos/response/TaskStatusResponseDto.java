@@ -1,4 +1,4 @@
-package hexlet.code.app.dtos;
+package hexlet.code.app.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,12 +13,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto extends BaseDto {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String role;
-    private String password;
+public class TaskStatusResponseDto extends BaseResponseDto {
+    private String name;
+    private String slug;
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

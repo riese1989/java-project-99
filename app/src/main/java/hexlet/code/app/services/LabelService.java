@@ -1,6 +1,7 @@
 package hexlet.code.app.services;
 
-import hexlet.code.app.dtos.LabelDto;
+import hexlet.code.app.dtos.requests.LabelRequestDto;
+import hexlet.code.app.dtos.response.LabelResponseDto;
 import hexlet.code.app.models.Label;
 import hexlet.code.app.repositories.LabelRepository;
 import hexlet.code.app.utils.Converter;
@@ -12,21 +13,21 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class LabelService extends AbstractCrudService<LabelDto, Label> implements CommandLineRunner {
+public class LabelService extends AbstractCrudService<LabelRequestDto, LabelResponseDto, Label> implements CommandLineRunner {
 
     private final LabelRepository labelRepository;
 
-    protected LabelService(LabelRepository labelRepository, Converter<LabelDto, Label> labelConverter) {
+    protected LabelService(LabelRepository labelRepository, Converter<LabelRequestDto, LabelResponseDto, Label> labelConverter) {
         super(labelRepository, labelConverter);
         this.labelRepository = labelRepository;
     }
 
-    public void findOrCreate(Set<LabelDto> labelDtos) {
-        if (labelDtos == null) {
+    public void findOrCreate(Set<LabelRequestDto> labelRequestDtos) {
+        if (labelRequestDtos == null) {
             return;
         }
 
-        labelDtos.forEach(l -> {
+        labelRequestDtos.forEach(l -> {
             var label = labelRepository.findLabelByName(l.getName());
 
             if (label.isEmpty()) {
@@ -42,7 +43,7 @@ public class LabelService extends AbstractCrudService<LabelDto, Label> implement
 
     private void createDefaultLabels(String... names) {
         for (var name : names) {
-            var labelDto = LabelDto.builder().name(name).build();
+            var labelDto = LabelRequestDto.builder().name(name).build();
 
             create(labelDto);
 

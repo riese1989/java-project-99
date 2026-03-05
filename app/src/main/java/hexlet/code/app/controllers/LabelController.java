@@ -1,6 +1,7 @@
 package hexlet.code.app.controllers;
 
-import hexlet.code.app.dtos.LabelDto;
+import hexlet.code.app.dtos.requests.LabelRequestDto;
+import hexlet.code.app.dtos.response.LabelResponseDto;
 import hexlet.code.app.services.LabelService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class LabelController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<LabelDto> getLabelById(@PathVariable final Long id) {
+    public ResponseEntity<LabelResponseDto> getLabelById(@PathVariable final Long id) {
         try {
             var labelDto = labelService.findById(id);
 
@@ -46,7 +47,7 @@ public class LabelController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<List<LabelDto>> getAllLabels() {
+    public ResponseEntity<List<LabelResponseDto>> getAllLabels() {
         try {
             var labelDtos = labelService.findAll();
 
@@ -64,9 +65,9 @@ public class LabelController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<LabelDto> createLabel(@RequestBody LabelDto labelDto) {
+    public ResponseEntity<LabelResponseDto> createLabel(@RequestBody LabelRequestDto labelRequestDto) {
         try {
-            var createdLabel = labelService.create(labelDto);
+            var createdLabel = labelService.create(labelRequestDto);
 
             return new ResponseEntity<>(createdLabel, CREATED);
         } catch (Exception e) {
@@ -78,11 +79,11 @@ public class LabelController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<LabelDto> updateLabel(@PathVariable final Long id, @RequestBody LabelDto labelDto) {
+    public ResponseEntity<LabelResponseDto> updateLabel(@PathVariable final Long id, @RequestBody LabelRequestDto labelRequestDto) {
         try {
-            labelDto.setId(id);
+            labelRequestDto.setId(id);
 
-            var updatedUser = labelService.update(labelDto);
+            var updatedUser = labelService.update(labelRequestDto);
 
             return new ResponseEntity<>(updatedUser, OK);
         }

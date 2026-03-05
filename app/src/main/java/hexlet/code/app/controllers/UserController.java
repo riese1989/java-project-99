@@ -1,6 +1,7 @@
 package hexlet.code.app.controllers;
 
-import hexlet.code.app.dtos.UserDto;
+import hexlet.code.app.dtos.requests.UserRequestDto;
+import hexlet.code.app.dtos.response.UserResponseDto;
 import hexlet.code.app.services.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class UserController {
 
     @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable final Long id) {
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable final Long id) {
         try {
             var user = userService.findById(id);
 
@@ -49,7 +50,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
         try {
             var users = userService.findAll().stream().peek(user -> user.setPassword(null))
                     .toList();
@@ -68,7 +69,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto user) {
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto user) {
         try {
             var createdUser = userService.create(user);
 
@@ -83,7 +84,7 @@ public class UserController {
 
     @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable final Long id, @RequestBody UserDto user) {
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable final Long id, @RequestBody UserRequestDto user) {
         try {
             user.setId(id);
 
