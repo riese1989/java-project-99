@@ -22,5 +22,5 @@ public class TaskRequestDto extends BaseRequestDto {
     private String content;
     @JsonProperty("status")
     private String slug;
-    private Set<LabelRequestDto> labels;
+    private Set<Long> taskLabelIds;
 }

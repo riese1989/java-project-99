@@ -23,5 +23,5 @@ public class TaskResponseDto extends BaseResponseDto {
     private String title;
     private String content;
     private String status;
-    private Set<LabelResponseDto> labels;
+    private Set<Long> taskLabelIds;
 }

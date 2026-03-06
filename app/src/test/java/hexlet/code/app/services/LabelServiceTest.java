@@ -1,15 +1,12 @@
 package hexlet.code.app.services;
 
 import hexlet.code.app.dtos.requests.LabelRequestDto;
-import hexlet.code.app.dtos.response.LabelResponseDto;
 import hexlet.code.app.repositories.LabelRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,24 +33,6 @@ class LabelServiceTest {
         assertNotNull(created.getId());
         assertEquals("Bug", created.getName());
         assertNotNull(created.getCreatedAt());
-    }
-
-    @Test
-    @DisplayName("Тест метода findOrCreate: создание новых и поиск существующих")
-    void findOrCreateTest() {
-        labelService.create(LabelRequestDto.builder().name("Existing").build());
-
-        assertEquals(1, labelRepository.count());
-
-        var labelDtos = Set.of(
-                LabelRequestDto.builder().name("Existing").build(),
-                LabelRequestDto.builder().name("NewOne").build()
-        );
-
-        labelService.findOrCreate(labelDtos);
-
-        assertEquals(2, labelRepository.count());
-        assertTrue(labelRepository.findLabelByName("NewOne").isPresent());
     }
 
     @Test
@@ -88,51 +67,5 @@ class LabelServiceTest {
         labelService.delete(created.getId());
 
         assertFalse(labelRepository.findById(created.getId()).isPresent());
-    }
-
-    @Test
-    @DisplayName("findOrCreate должен создавать новые метки, если их нет в базе")
-    void findOrCreateNewLabelsTest() {
-        var labelDtos = Set.of(
-                LabelRequestDto.builder().name("feature").build(),
-                LabelRequestDto.builder().name("bug").build()
-        );
-
-        labelService.findOrCreate(labelDtos);
-
-        var allLabels = labelService.findAll();
-        assertEquals(2, allLabels.size());
-
-        var names = allLabels.stream().map(LabelResponseDto::getName).toList();
-        assertTrue(names.contains("feature"));
-        assertTrue(names.contains("bug"));
-    }
-
-    @Test
-    @DisplayName("findOrCreate не должен создавать дубликаты существующих меток")
-    void findOrCreateExistingLabelsTest() {
-        labelService.create(LabelRequestDto.builder().name("urgent").build());
-
-        assertEquals(1, labelRepository.count());
-
-        var labelDtos = Set.of(
-                LabelRequestDto.builder().name("urgent").build(),
-                LabelRequestDto.builder().name("task").build()
-        );
-
-        labelService.findOrCreate(labelDtos);
-
-        assertEquals(2, labelRepository.count());
-
-        var urgentLabel = labelRepository.findLabelByName("urgent");
-        assertTrue(urgentLabel.isPresent());
-    }
-
-    @Test
-    @DisplayName("findOrCreate не должен ничего делать, если передан null или пустой сет")
-    void findOrCreateEmptyTest() {
-        assertDoesNotThrow(() -> labelService.findOrCreate(null));
-        assertDoesNotThrow(() -> labelService.findOrCreate(Set.of()));
-        assertEquals(0, labelRepository.count());
     }
 }

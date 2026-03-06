@@ -1,6 +1,7 @@
 package hexlet.code.app.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.app.dtos.requests.FilterRequestDto;
 import hexlet.code.app.dtos.requests.TaskRequestDto;
 import hexlet.code.app.dtos.response.TaskResponseDto;
 import hexlet.code.app.services.TaskService;
@@ -86,7 +87,8 @@ class TaskControllerTest {
     @Test
     @DisplayName("При получении задачи произошла ошибка")
     void getTasksError() throws Exception {
-        when(taskService.findAll()).thenThrow(new RuntimeException("Произошла ошибка"));
+        when(taskService.findByFilter(any(FilterRequestDto.class)))
+                .thenThrow(new RuntimeException("Произошла ошибка"));
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -96,24 +98,6 @@ class TaskControllerTest {
     @Test
     @DisplayName("Успешно получены задачи")
     void getTasks() throws Exception {
-        var request1 = TaskRequestDto.builder()
-                .id(1L)
-                .title("First Task")
-                .index(10)
-                .content("First Description")
-                .slug("new")
-                .assigneeId(100L)
-                .build();
-
-        var request2 = TaskRequestDto.builder()
-                .id(2L)
-                .title("Second Task")
-                .index(20)
-                .content("Second Description")
-                .slug("done")
-                .assigneeId(200L)
-                .build();
-
         var response1 = TaskResponseDto.builder()
                 .id(1L)
                 .title("First Task")
@@ -132,7 +116,7 @@ class TaskControllerTest {
                 .assigneeId(200L)
                 .build();
 
-        when(taskService.findAll()).thenReturn(List.of(response1, response2));
+        when(taskService.findByFilter(any(FilterRequestDto.class))).thenReturn(List.of(response1, response2));
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))

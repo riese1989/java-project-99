@@ -13,13 +13,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FilterRequestDto extends BaseRequestDto {
-    @JsonProperty("titleCont")
-    private String title;
-
+    private String titleCont;
     private Long assigneeId;
 
     @JsonProperty("status")
     private String slug;
-
     private Long labelId;
 }

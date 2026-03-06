@@ -1,10 +1,10 @@
 package hexlet.code.app.services;
 
+import hexlet.code.app.dtos.requests.FilterRequestDto;
 import hexlet.code.app.dtos.requests.LabelRequestDto;
 import hexlet.code.app.dtos.requests.TaskRequestDto;
 import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
 import hexlet.code.app.dtos.requests.UserRequestDto;
-import hexlet.code.app.dtos.response.TaskResponseDto;
 import hexlet.code.app.dtos.response.TaskStatusResponseDto;
 import hexlet.code.app.dtos.response.UserResponseDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,14 +12,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @Transactional
@@ -28,7 +25,7 @@ class TaskServiceTest {
     private TaskService taskService;
     @Autowired
     private TaskStatusService taskStatusService;
-    @MockitoBean
+    @Autowired
     private LabelService labelService;
     @Autowired
     private UserService userService;
@@ -52,16 +49,14 @@ class TaskServiceTest {
     @Test
     @DisplayName("Создаем задачу и проверяем её сохранение")
     void createAndGetTaskTest() {
-        var labelDtos = new HashSet<LabelRequestDto>();
-
-        labelDtos.add(LabelRequestDto.builder().name("Bug").build());
+        var createdLabel = labelService.create(LabelRequestDto.builder().name("Bug").build());
 
         var taskDto = TaskRequestDto.builder()
                 .title("Fix bug")
                 .index(1)
                 .content("Long description")
                 .slug(existingStatus.getSlug())
-                .labels(labelDtos)
+                .taskLabelIds(Set.of(createdLabel.getId()))
                 .assigneeId(assignee.getId())
                 .build();
 
@@ -75,37 +70,6 @@ class TaskServiceTest {
         var found = taskService.findById(created.getId());
 
         assertEquals("Long description", found.getContent());
-        verify(labelService).findOrCreate(labelDtos);
-    }
-
-    @Test
-    @DisplayName("Обновляем только имя задачи и метку")
-    void updateTaskNameTest() {
-        var labelDtos = new HashSet<LabelRequestDto>();
-
-        labelDtos.add(LabelRequestDto.builder().name("Bug").build());
-
-        var taskDto = TaskRequestDto.builder()
-                .title("Old Name")
-                .slug(existingStatus.getSlug())
-                .assigneeId(assignee.getId())
-                .labels(labelDtos)
-                .build();
-        var created = taskService.create(taskDto);
-
-        labelDtos.add(LabelRequestDto.builder().name("Fix").build());
-
-        var updateData = TaskRequestDto.builder()
-                .id(created.getId())
-                .title("New Name")
-                .labels(labelDtos)
-                .build();
-
-        var updated = taskService.update(updateData);
-
-        assertEquals("New Name", updated.getTitle());
-        assertEquals(existingStatus.getSlug(), updated.getStatus());
-        verify(labelService, times(2)).findOrCreate(labelDtos);
     }
 
     @Test
@@ -154,6 +118,41 @@ class TaskServiceTest {
     }
 
     @Test
+    @DisplayName("Фильтр задач")
+    void filterTasksTest() {
+        var labelDto1 = LabelRequestDto.builder().name("Bug").build();
+        var labelDto2 = LabelRequestDto.builder().name("Fix").build();
+        var createdLabel1 = labelService.create(labelDto1);
+        var createdLabel2 = labelService.create(labelDto2);
+        taskService.create(TaskRequestDto.builder()
+                .title("T1T1T1")
+                .slug(existingStatus.getSlug())
+                .assigneeId(assignee.getId())
+                .taskLabelIds(Set.of(createdLabel1.getId(), createdLabel2.getId()))
+                .build());
+        taskService.create(TaskRequestDto.builder()
+                .title("T2T2T2T2")
+                .slug(existingStatus.getSlug())
+                .taskLabelIds(Set.of(createdLabel1.getId()))
+                .assigneeId(assignee.getId()).build());
+
+        var filter = FilterRequestDto.builder().titleCont("T1").assigneeId(assignee.getId())
+                .slug(existingStatus.getSlug()).build();
+
+        var tasks = taskService.findByFilter(filter);
+
+        assertNotNull(tasks);
+        assertEquals(1, tasks.size());
+
+        var task = tasks.get(0);
+
+        assertEquals("T1T1T1", task.getTitle());
+        assertEquals(assignee.getId(), task.getAssigneeId());
+        assertEquals(existingStatus.getSlug(), task.getStatus());
+    }
+
+
+    @Test
     @DisplayName("Ошибка при поиске несуществующей задачи")
     void findNonExistentTaskTest() {
         long invalidId = 999999L;
@@ -163,6 +162,84 @@ class TaskServiceTest {
         );
 
         assertTrue(exception.getMessage().contains("Задача с id " + invalidId + " не найдена"));
+    }
+
+    @Test
+    @DisplayName("Обновление задачи: изменение названия и статуса")
+    void updateTaskTest() {
+        var createDto = TaskRequestDto.builder()
+                .title("Old Title")
+                .slug(existingStatus.getSlug())
+                .assigneeId(assignee.getId())
+                .build();
+        var created = taskService.create(createDto);
+
+        var newStatus = taskStatusService.create(TaskStatusRequestDto.builder()
+                .name("In Progress").slug("in_progress").build());
+
+        var updateDto = TaskRequestDto.builder()
+                .id(created.getId())
+                .title("New Title")
+                .slug(newStatus.getSlug())
+                .build();
+
+        var updated = taskService.update(updateDto);
+
+        assertEquals("New Title", updated.getTitle());
+        assertEquals("in_progress", updated.getStatus());
+        assertEquals(created.getId(), updated.getId());
+    }
+
+    @Test
+    @DisplayName("Фильтрация задач только по метке")
+    void filterByLabelOnlyTest() {
+        var label = labelService.create(LabelRequestDto.builder().name("Urgent").build());
+
+        taskService.create(TaskRequestDto.builder()
+                .title("Task 1").slug(existingStatus.getSlug())
+                .taskLabelIds(Set.of(label.getId())).build());
+        taskService.create(TaskRequestDto.builder()
+                .title("Task 2").slug(existingStatus.getSlug()).build());
+
+        var filter = FilterRequestDto.builder().labelId(label.getId()).build();
+        var tasks = taskService.findByFilter(filter);
+
+        assertEquals(1, tasks.size());
+        assertEquals("Task 1", tasks.get(0).getTitle());
+    }
+
+    @Test
+    @DisplayName("Обновление меток задачи (замена старых на новые)")
+    void updateTaskLabelsTest() {
+        var l1 = labelService.create(LabelRequestDto.builder().name("Name1").build());
+        var l2 = labelService.create(LabelRequestDto.builder().name("Name2").build());
+
+        var created = taskService.create(TaskRequestDto.builder()
+                .title("Task").slug(existingStatus.getSlug())
+                .taskLabelIds(Set.of(l1.getId())).build());
+
+        var updateDto = TaskRequestDto.builder()
+                .id(created.getId())
+                .taskLabelIds(Set.of(l2.getId()))
+                .build();
+
+        var updated = taskService.update(updateDto);
+
+        var labelIds = updated.getTaskLabelIds();
+        assertTrue(labelIds.contains(l2.getId()));
+        assertFalse(labelIds.contains(l1.getId()));
+    }
+
+    @Test
+    @DisplayName("Поиск задач с пустым фильтром (должен вернуть все)")
+    void filterEmptyTest() {
+        taskService.create(TaskRequestDto.builder()
+                .title("T1").slug(existingStatus.getSlug()).build());
+
+        var filter = FilterRequestDto.builder().build(); // Все поля null
+        var tasks = taskService.findByFilter(filter);
+
+        assertFalse(tasks.isEmpty());
     }
 }
 

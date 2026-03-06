@@ -1,5 +1,6 @@
 package hexlet.code.app.controllers;
 
+import hexlet.code.app.dtos.requests.FilterRequestDto;
 import hexlet.code.app.dtos.requests.TaskRequestDto;
 import hexlet.code.app.dtos.response.TaskResponseDto;
 import hexlet.code.app.services.TaskService;
@@ -41,23 +42,6 @@ public class TaskController {
             log.error(e.getMessage());
 
             return new ResponseEntity<>(NOT_FOUND);
-        }
-    }
-
-    @GetMapping
-    public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
-        try {
-            var taskDtos = taskService.findAll();
-
-            return ResponseEntity.ok()
-                    .header("X-Total-Count", String.valueOf(taskDtos.size()))
-                    .header("Access-Control-Expose-Headers", "X-Total-Count")
-                    .body(taskDtos);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
         }
     }
 
@@ -103,18 +87,18 @@ public class TaskController {
         }
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<TaskDto>> getTasks(FilterRequestDto filter) {
-//        try {
-//            var taskDtos = taskService.findAll(filter);
-//
-//            return ResponseEntity.ok()
-//                    .header("X-Total-Count", String.valueOf(taskDtos.size()))
-//                    .header("Access-Control-Expose-Headers", "X-Total-Count")
-//                    .body(taskDtos);
-//        } catch (Exception e) {
-//            log.error("Error filtering tasks: {}", e.getMessage());
-//            return ResponseEntity.badRequest().build();
-//        }
-//    }
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDto>> getTasks(FilterRequestDto filter) {
+        try {
+            var taskDtos = taskService.findByFilter(filter);
+
+            return ResponseEntity.ok()
+                    .header("X-Total-Count", String.valueOf(taskDtos.size()))
+                    .header("Access-Control-Expose-Headers", "X-Total-Count")
+                    .body(taskDtos);
+        } catch (Exception e) {
+            log.error("Error filtering tasks: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

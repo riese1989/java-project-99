@@ -5,6 +5,7 @@ import hexlet.code.app.dtos.response.BaseResponseDto;
 import hexlet.code.app.models.BaseEntity;
 import hexlet.code.app.utils.Converter;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public abstract class AbstractCrudService<Req extends BaseRequestDto, Res extend
         return entities.stream().map(converter::convertToResponseDto).toList();
     }
 
+    @Transactional
     public Res create(Req dto) {
         var entity = converter.convertToEntity(dto);
 

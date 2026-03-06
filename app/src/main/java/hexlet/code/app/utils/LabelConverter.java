@@ -6,6 +6,9 @@ import hexlet.code.app.models.Label;
 import hexlet.code.app.repositories.LabelRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 public class LabelConverter implements Converter<LabelRequestDto, LabelResponseDto, Label>{
     private final LabelRepository labelRepository;
@@ -53,5 +56,23 @@ public class LabelConverter implements Converter<LabelRequestDto, LabelResponseD
     public void updateEntity(LabelRequestDto dto, Label entity) {
         if (dto.getName() != null)
             entity.setName(dto.getName());
+    }
+
+    public Set<Label> convertToEntities(Set<Long> ids) {
+        var labels = new HashSet<Label>();
+
+        if (ids == null) {
+            return labels;
+        }
+
+        for (var id : ids) {
+            var entity = labelRepository.findById(id).orElse(null);
+
+            if(entity != null) {
+                labels.add(entity);
+            }
+        }
+
+        return labels;
     }
 }

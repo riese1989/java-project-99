@@ -9,31 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-
 @Service
 @Slf4j
 public class LabelService extends AbstractCrudService<LabelRequestDto, LabelResponseDto, Label> implements CommandLineRunner {
 
-    private final LabelRepository labelRepository;
-
     protected LabelService(LabelRepository labelRepository, Converter<LabelRequestDto, LabelResponseDto, Label> labelConverter) {
         super(labelRepository, labelConverter);
-        this.labelRepository = labelRepository;
-    }
-
-    public void findOrCreate(Set<LabelRequestDto> labelRequestDtos) {
-        if (labelRequestDtos == null) {
-            return;
-        }
-
-        labelRequestDtos.forEach(l -> {
-            var label = labelRepository.findLabelByName(l.getName());
-
-            if (label.isEmpty()) {
-                this.create(l);
-            }
-        });
     }
 
     @Override
