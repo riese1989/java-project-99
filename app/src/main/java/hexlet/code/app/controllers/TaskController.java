@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @Slf4j
@@ -32,73 +31,38 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponseDto> getTaskById(@PathVariable final Long id) {
-        try {
-            var taskDto = taskService.findById(id);
-
-            return new ResponseEntity<>(taskDto, OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(NOT_FOUND);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public TaskResponseDto getTaskById(@PathVariable final Long id) {
+        return taskService.findById(id);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TaskResponseDto> createTask(@RequestBody TaskRequestDto taskRequestDto) {
-        try {
-            var createdTask = taskService.create(taskRequestDto);
-
-            return new ResponseEntity<>(createdTask, CREATED);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public TaskResponseDto createTask(@RequestBody TaskRequestDto taskRequestDto) {
+        return taskService.create(taskRequestDto);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask(@PathVariable final Long id) {
-        try {
-            taskService.delete(id);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        taskService.delete(id);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskResponseDto> updateTask(@PathVariable final Long id, @RequestBody TaskRequestDto taskRequestDto) {
-        try {
-            taskRequestDto.setId(id);
+    @ResponseStatus(HttpStatus.OK)
+    public TaskResponseDto updateTask(@PathVariable final Long id, @RequestBody TaskRequestDto taskRequestDto) {
+        taskRequestDto.setId(id);
 
-            var updatedUser = taskService.update(taskRequestDto);
-
-            return new ResponseEntity<>(updatedUser, OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return taskService.update(taskRequestDto);
     }
 
     @GetMapping
     public ResponseEntity<List<TaskResponseDto>> getTasks(FilterRequestDto filter) {
-        try {
-            var taskDtos = taskService.findByFilter(filter);
+        var taskDtos = taskService.findByFilter(filter);
 
-            return ResponseEntity.ok()
-                    .header("X-Total-Count", String.valueOf(taskDtos.size()))
-                    .header("Access-Control-Expose-Headers", "X-Total-Count")
-                    .body(taskDtos);
-        } catch (Exception e) {
-            log.error("Error filtering tasks: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(taskDtos.size()))
+                .header("Access-Control-Expose-Headers", "X-Total-Count")
+                .body(taskDtos);
     }
 }

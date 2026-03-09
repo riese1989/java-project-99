@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -33,80 +34,44 @@ public class UserController {
 
     @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDto> getUserById(@PathVariable final Long id) {
-        try {
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto getUserById(@PathVariable final Long id) {
             var user = userService.findById(id);
 
             user.setPassword(null);
 
-            return new ResponseEntity<>(user, OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(NOT_FOUND);
-        }
+            return user;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        try {
-            var users = userService.findAll().stream().peek(user -> user.setPassword(null))
-                    .toList();
+        var users = userService.findAll().stream().peek(user -> user.setPassword(null))
+                .toList();
 
-            return ResponseEntity.ok()
-                    .header("X-Total-Count", String.valueOf(users.size()))
-                    .header("Access-Control-Expose-Headers", "X-Total-Count")
-                    .body(users);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
-        }
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(users.size()))
+                .header("Access-Control-Expose-Headers", "X-Total-Count")
+                .body(users);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto user) {
-        try {
-            var createdUser = userService.create(user);
-
-            return new ResponseEntity<>(createdUser, CREATED);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
-        }
+    @ResponseStatus(CREATED)
+    public UserResponseDto createUser(@Valid @RequestBody UserRequestDto user) {
+        return userService.create(user);
     }
 
-    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable final Long id, @RequestBody UserRequestDto user) {
-        try {
-            user.setId(id);
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponseDto updateUser(@PathVariable final Long id, @RequestBody UserRequestDto user) {
+        user.setId(id);
 
-            var updatedUser = userService.update(user);
-
-            return new ResponseEntity<>(updatedUser, OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return userService.update(user);
     }
 
     @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
+    @ResponseStatus(NO_CONTENT)
     public void deleteUser(@PathVariable final Long id) {
-        try {
-            userService.delete(id);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        userService.delete(id);
     }
 }

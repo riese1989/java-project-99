@@ -16,7 +16,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -36,7 +35,6 @@ class TaskControllerTest {
     private ObjectMapper objectMapper;
 
     private static final String BASE_URL = "/api/tasks";
-    private static final LocalDateTime LDT = LocalDateTime.now();
 
     @Test
     @DisplayName("При получении задачи произошла ошибка")
@@ -156,7 +154,7 @@ class TaskControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -214,7 +212,7 @@ class TaskControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(taskDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test

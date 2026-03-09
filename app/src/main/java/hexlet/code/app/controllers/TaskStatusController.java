@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,13 +33,13 @@ public class TaskStatusController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<TaskStatusResponseDto> getTaskStatusById(@PathVariable final Long id) {
         try {
             var taskStatusDto = taskStatusService.findById(id);
 
             return new ResponseEntity<>(taskStatusDto, OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
 
             return new ResponseEntity<>(NOT_FOUND);
@@ -47,23 +48,16 @@ public class TaskStatusController {
 
     @GetMapping
     public ResponseEntity<List<TaskStatusResponseDto>> getAllTaskStatuses() {
-        try {
-            var taskStatusDtos = taskStatusService.findAll();
+        var taskStatusDtos = taskStatusService.findAll();
 
-            return ResponseEntity.ok()
-                    .header("X-Total-Count", String.valueOf(taskStatusDtos.size()))
-                    .header("Access-Control-Expose-Headers", "X-Total-Count")
-                    .body(taskStatusDtos);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
-        }
+        return ResponseEntity.ok()
+                .header("X-Total-Count", String.valueOf(taskStatusDtos.size()))
+                .header("Access-Control-Expose-Headers", "X-Total-Count")
+                .body(taskStatusDtos);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping
+    @ResponseStatus(CREATED)
     public ResponseEntity<TaskStatusResponseDto> createTaskStatus(@Valid @RequestBody TaskStatusRequestDto taskStatusRequestDto) {
         try {
             var createdTaskStatus = taskStatusService.create(taskStatusRequestDto);
@@ -76,19 +70,18 @@ public class TaskStatusController {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
+    @ResponseStatus(NO_CONTENT)
     public void deleteTaskStatus(@PathVariable final Long id) {
         try {
             taskStatusService.delete(id);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<TaskStatusResponseDto> updateTaskStatus(@PathVariable final Long id, @RequestBody TaskStatusRequestDto taskStatusRequestDto) {
         try {
             taskStatusRequestDto.setId(id);
@@ -96,8 +89,7 @@ public class TaskStatusController {
             var updatedUser = taskStatusService.update(taskStatusRequestDto);
 
             return new ResponseEntity<>(updatedUser, OK);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
 
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

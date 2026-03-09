@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @Slf4j
@@ -30,78 +29,38 @@ public class LabelController {
         this.labelService = labelService;
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<LabelResponseDto> getLabelById(@PathVariable final Long id) {
-        try {
-            var labelDto = labelService.findById(id);
-
-            return new ResponseEntity<>(labelDto, OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(NOT_FOUND);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public LabelResponseDto getLabelById(@PathVariable final Long id) {
+        return labelService.findById(id);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<LabelResponseDto>> getAllLabels() {
-        try {
             var labelDtos = labelService.findAll();
 
             return ResponseEntity.ok()
                     .header("X-Total-Count", String.valueOf(labelDtos.size()))
                     .header("Access-Control-Expose-Headers", "X-Total-Count")
                     .body(labelDtos);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
-        }
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<LabelResponseDto> createLabel(@RequestBody LabelRequestDto labelRequestDto) {
-        try {
-            var createdLabel = labelService.create(labelRequestDto);
-
-            return new ResponseEntity<>(createdLabel, CREATED);
-        } catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public LabelResponseDto createLabel(@RequestBody LabelRequestDto labelRequestDto) {
+        return labelService.create(labelRequestDto);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<LabelResponseDto> updateLabel(@PathVariable final Long id, @RequestBody LabelRequestDto labelRequestDto) {
-        try {
-            labelRequestDto.setId(id);
-
-            var updatedUser = labelService.update(labelRequestDto);
-
-            return new ResponseEntity<>(updatedUser, OK);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public LabelResponseDto updateLabel(@PathVariable final Long id, @RequestBody LabelRequestDto labelRequestDto) {
+        return labelService.update(labelRequestDto);
     }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLabel(@PathVariable final Long id) {
-        try {
-            labelService.delete(id);
-        }
-        catch (Exception e) {
-            log.error(e.getMessage());
-        }
+        labelService.delete(id);
     }
 }

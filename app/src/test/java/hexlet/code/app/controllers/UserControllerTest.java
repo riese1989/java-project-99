@@ -149,7 +149,7 @@ class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -205,7 +205,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -255,7 +255,7 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put(BASE_URL + "/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedUserDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
     public static String asJsonString(final Object obj) {
         try {
