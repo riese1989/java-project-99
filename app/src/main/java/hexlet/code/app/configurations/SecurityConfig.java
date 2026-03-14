@@ -1,7 +1,7 @@
 package hexlet.code.app.configurations;
 
 import hexlet.code.app.components.JwtRequestFilter;
-import hexlet.code.app.services.UserService;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +24,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtRequestFilter jwtRequestFilter;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public SecurityConfig(JwtRequestFilter jwtRequestFilter, @Lazy UserService userService) {
+    public SecurityConfig(JwtRequestFilter jwtRequestFilter, @Lazy UserServiceImpl userService) {
         this.jwtRequestFilter = jwtRequestFilter;
         this.userService = userService;
     }

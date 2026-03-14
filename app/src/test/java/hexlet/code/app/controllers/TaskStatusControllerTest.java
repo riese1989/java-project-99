@@ -3,7 +3,7 @@ package hexlet.code.app.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
 import hexlet.code.app.dtos.response.TaskStatusResponseDto;
-import hexlet.code.app.services.TaskStatusService;
+import hexlet.code.app.services.impl.TaskStatusServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class TaskStatusControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockitoBean
-    private TaskStatusService taskStatusService;
+    private TaskStatusServiceImpl taskStatusService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -92,7 +92,7 @@ public class TaskStatusControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test

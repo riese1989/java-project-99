@@ -18,7 +18,6 @@ public class UserResponseDto extends BaseResponseDto {
     private String lastName;
     private String email;
     private String role;
-    private String password;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -7,6 +7,9 @@ import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
 import hexlet.code.app.dtos.requests.UserRequestDto;
 import hexlet.code.app.dtos.response.TaskStatusResponseDto;
 import hexlet.code.app.dtos.response.UserResponseDto;
+import hexlet.code.app.services.impl.TaskServiceImpl;
+import hexlet.code.app.services.impl.TaskStatusServiceImpl;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @Transactional
 class TaskServiceTest {
     @Autowired
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
     @Autowired
-    private TaskStatusService taskStatusService;
+    private TaskStatusServiceImpl taskStatusService;
     @Autowired
     private LabelService labelService;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
     private TaskStatusResponseDto existingStatus;
     private UserResponseDto assignee;
 

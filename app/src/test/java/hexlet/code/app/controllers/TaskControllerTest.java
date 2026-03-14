@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dtos.requests.FilterRequestDto;
 import hexlet.code.app.dtos.requests.TaskRequestDto;
 import hexlet.code.app.dtos.response.TaskResponseDto;
-import hexlet.code.app.services.TaskService;
+import hexlet.code.app.services.impl.TaskServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ class TaskControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockitoBean
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -90,7 +90,7 @@ class TaskControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test

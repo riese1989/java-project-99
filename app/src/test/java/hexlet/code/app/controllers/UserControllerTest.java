@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import hexlet.code.app.dtos.requests.UserRequestDto;
 import hexlet.code.app.dtos.response.UserResponseDto;
-import hexlet.code.app.services.UserService;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockitoBean
-    private UserService userService;
+    private UserServiceImpl userService;
 
     private static final String BASE_URL = "/api/users";
 
@@ -60,7 +60,6 @@ class UserControllerTest {
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
-                .password("password")
                 .email("john.doe@example.com")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -84,28 +83,10 @@ class UserControllerTest {
     @Test
     @DisplayName("Получаем всех пользователей")
     void getAllUsersTest() throws Exception {
-        var request1 = UserRequestDto.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doe")
-                .password("password")
-                .email("john.doe@example.com")
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        var request2 = UserRequestDto.builder()
-                .id(2L)
-                .firstName("John2")
-                .lastName("Doe2")
-                .password("password2")
-                .email("john2.doe@example.com")
-                .createdAt(LocalDateTime.now())
-                .build();
         var response1 = UserResponseDto.builder()
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
-                .password("password")
                 .email("john.doe@example.com")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -114,7 +95,6 @@ class UserControllerTest {
                 .id(2L)
                 .firstName("John2")
                 .lastName("Doe2")
-                .password("password2")
                 .email("john2.doe@example.com")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -167,7 +147,6 @@ class UserControllerTest {
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
-                .password("password")
                 .email("john.doe@example.com")
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -183,7 +162,6 @@ class UserControllerTest {
                         jsonPath("$.firstName").value("John"),
                         jsonPath("$.lastName").value("Doe"),
                         jsonPath("$.email").value("john.doe@example.com"),
-                        jsonPath("$.password").value("password"),
                         jsonPath("$.createdAt").exists());
     }
 
@@ -220,7 +198,6 @@ class UserControllerTest {
                 .id(1L)
                 .firstName("John")
                 .lastName("Doe")
-                .password("password")
                 .email("john.doe@example.com")
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -237,7 +214,6 @@ class UserControllerTest {
                         jsonPath("$.firstName").value("John"),
                         jsonPath("$.lastName").value("Doe"),
                         jsonPath("$.email").value("john.doe@example.com"),
-                        jsonPath("$.password").value("password"),
                         jsonPath("$.createdAt").exists(),
                         jsonPath("$.updatedAt").exists());
     }

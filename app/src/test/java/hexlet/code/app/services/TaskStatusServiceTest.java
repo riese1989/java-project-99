@@ -5,6 +5,9 @@ import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
 import hexlet.code.app.dtos.requests.UserRequestDto;
 import hexlet.code.app.repositories.TaskRepository;
 import hexlet.code.app.repositories.TaskStatusRepository;
+import hexlet.code.app.services.impl.TaskServiceImpl;
+import hexlet.code.app.services.impl.TaskStatusServiceImpl;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,11 +26,11 @@ public class TaskStatusServiceTest {
     @Autowired
     private TaskRepository taskRepository;
     @Autowired
-    private TaskStatusService taskStatusService;
+    private TaskStatusServiceImpl taskStatusService;
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
     @Autowired
-    private TaskService taskService;
+    private TaskServiceImpl taskService;
 
     @BeforeEach
     public void setUp() {
@@ -158,6 +161,5 @@ public class TaskStatusServiceTest {
         taskService.create(taskDto);
 
         assertThrows(RuntimeException.class, () -> taskStatusService.delete(taskStatusDto.getId()));
-
     }
 }

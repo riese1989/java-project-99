@@ -1,6 +1,6 @@
 package hexlet.code.app.components;
 
-import hexlet.code.app.services.UserService;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,9 +16,9 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public JwtRequestFilter(JwtUtils jwtUtils, @Lazy UserService userService) {
+    public JwtRequestFilter(JwtUtils jwtUtils, @Lazy UserServiceImpl userService) {
         this.jwtUtils = jwtUtils;
         this.userService = userService;
     }

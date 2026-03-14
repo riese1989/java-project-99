@@ -2,7 +2,7 @@ package hexlet.code.app.controllers;
 
 import hexlet.code.app.components.JwtUtils;
 import hexlet.code.app.dtos.LoginRequest;
-import hexlet.code.app.services.UserService;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class AuthController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final JwtUtils jwtUtils;
 
-    public AuthController(UserService userService, JwtUtils jwtUtils) {
+    public AuthController(UserServiceImpl userService, JwtUtils jwtUtils) {
         this.userService = userService;
         this.jwtUtils = jwtUtils;
     }

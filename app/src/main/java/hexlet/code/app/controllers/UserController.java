@@ -2,7 +2,7 @@ package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.requests.UserRequestDto;
 import hexlet.code.app.dtos.response.UserResponseDto;
-import hexlet.code.app.services.UserService;
+import hexlet.code.app.services.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,9 +26,9 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RequestMapping("/api/users")
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
@@ -38,15 +38,12 @@ public class UserController {
     public UserResponseDto getUserById(@PathVariable final Long id) {
             var user = userService.findById(id);
 
-            user.setPassword(null);
-
             return user;
     }
 
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        var users = userService.findAll().stream().peek(user -> user.setPassword(null))
-                .toList();
+        var users = userService.findAll();
 
         return ResponseEntity.ok()
                 .header("X-Total-Count", String.valueOf(users.size()))

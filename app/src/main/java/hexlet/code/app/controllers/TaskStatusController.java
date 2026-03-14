@@ -2,12 +2,11 @@ package hexlet.code.app.controllers;
 
 import hexlet.code.app.dtos.requests.TaskStatusRequestDto;
 import hexlet.code.app.dtos.response.TaskStatusResponseDto;
-import hexlet.code.app.services.TaskStatusService;
+import hexlet.code.app.services.impl.TaskStatusServiceImpl;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +25,9 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 @RequestMapping("/api/task_statuses")
 public class TaskStatusController {
-    private final TaskStatusService taskStatusService;
+    private final TaskStatusServiceImpl taskStatusService;
 
-    public TaskStatusController(TaskStatusService taskStatusService) {
+    public TaskStatusController(TaskStatusServiceImpl taskStatusService) {
         this.taskStatusService = taskStatusService;
     }
 
