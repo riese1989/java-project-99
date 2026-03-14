@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := build-run
 
-
+setup:
+	cd app && ./gradlew build installDist
 
 clean:
 	./gradlew clean
