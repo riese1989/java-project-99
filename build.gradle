@@ -40,10 +40,6 @@ dependencies {
     testImplementation 'io.rest-assured:spring-mock-mvc'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.14.0")
-    testImplementation 'org.instancio:instancio-junit:5.5.1'
-    implementation("net.datafaker:datafaker:2.5.4")
-
 }
 
 tasks.named('test') {
