@@ -66,7 +66,7 @@ public class UserServiceImpl extends AbstractCrudService<UserRequestDto, UserRes
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .authorities(user.getRole())
+                .roles(user.getRole())
                 .build();
     }
 }
