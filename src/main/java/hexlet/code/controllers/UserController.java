@@ -30,6 +30,7 @@ public class UserController {
 
     public UserController(UserServiceImpl userService) {
         this.userService = userService;
+        System.out.println("!!! UserController INITIALIZED !!!");
     }
 
     @PreAuthorize("#name == authentication.name or hasRole('ADMIN')")

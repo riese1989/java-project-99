@@ -53,20 +53,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
         http
-                // Полностью отключаем CSRF (частая причина 403 на POST)
                 .csrf(csrf -> csrf.disable())
-
-                // Разрешаем ВСЕ запросы без авторизации
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                )
-
-                // Отключаем сессии (делаем stateless)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
+                                "/api/login",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users").authenticated()
+                        .anyRequest().authenticated()
+                )
+                .httpBasic(Customizer.withDefaults())
+                .userDetailsService(userService);
 
-        // Фильтр можно оставить, но при permitAll() он не будет блокировать запросы
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
