@@ -25,7 +25,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        System.out.println("№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№А ТЕПЕРЬ ВЫВОДИМ");
+
         var header = request.getHeader("Authorization");
+
+        System.out.println("DEBUG: Request URI: " + request.getRequestURI());
+        System.out.println("DEBUG: Auth Header: " + header);
 
         if (header != null && header.startsWith("Bearer ")) {
             var token = header.substring(7);
@@ -35,7 +40,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 var userDetails = userService.loadUserByUsername(email);
                 var auth = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
+
+                System.out.println("DEBUG: User: " + email);
+                System.out.println("DEBUG: Authorities: " + userDetails.getAuthorities());
+
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            } else {
+                System.out.println("DEBUG: Token validation FAILED");
             }
         }
 
