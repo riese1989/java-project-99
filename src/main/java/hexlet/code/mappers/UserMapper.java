@@ -25,4 +25,3 @@ public abstract class UserMapper implements BaseMapper<UserRequestDto, UserRespo
     @Mapping(target = "password", source = "password", qualifiedByName = "encryptPassword")
     public abstract void updateEntity(UserRequestDto dto, @MappingTarget User entity);
 }
-

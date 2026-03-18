@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,6 +19,6 @@ public class UserRequestDto extends BaseRequestDto {
     private String email;
     private String role;
     private String password;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 }

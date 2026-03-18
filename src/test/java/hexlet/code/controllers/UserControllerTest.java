@@ -12,10 +12,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,6 +34,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
     @MockitoBean
     private UserServiceImpl userService;
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;
 
     private static final String BASE_URL = "/api/users";
 
@@ -54,7 +57,7 @@ class UserControllerTest {
                 .lastName("Doe")
                 .password("password")
                 .email("john.doe@example.com")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDate.now())
                 .build();
         var response = UserResponseDto.builder()
                 .id(1L)
@@ -141,7 +144,7 @@ class UserControllerTest {
                 .lastName("Doe")
                 .password("password")
                 .email("john.doe@example.com")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDate.now())
                 .build();
         var response = UserResponseDto.builder()
                 .id(1L)
@@ -174,7 +177,7 @@ class UserControllerTest {
                 .lastName("Doe")
                 .password("password")
                 .email("john.doe@example.com")
-                .createdAt(LocalDateTime.now())
+                .createdAt(LocalDate.now())
                 .build();
 
 
@@ -233,6 +236,7 @@ class UserControllerTest {
                         .content(asJsonString(updatedUserDto)))
                 .andExpect(status().isNotFound());
     }
+
     public static String asJsonString(final Object obj) {
         try {
             return new ObjectMapper().registerModule(new JavaTimeModule()).writeValueAsString(obj);
