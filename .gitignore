@@ -1,4 +1,38 @@
-/.idea/
-/0.0.1-SNAPSHOT/gradlew.bat
-/app/node_modules/
+### Общие файлы сборки и IDE ###
+.gradle
+build/
+bin/
+out/
+.idea
+*.iws
+*.iml
+*.ipr
+HELP.md
+
+### Исключения (что НЕ игнорируем) ###
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+!**/src/main/**/bin/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### STS (Spring Tool Suite) ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
 /avail-frontend/
