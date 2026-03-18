@@ -1,9 +1,12 @@
-FROM gradle:8.10-jdk21
+FROM gradle:8.13-jdk21
 
-WORKDIR /app
+WORKDIR /project
 
-COPY /app .
+COPY . .
 
-RUN gradle installDist
+RUN chmod +x gradlew
 
-CMD ./build/install/app/bin/app
+RUN ./gradlew installDist --no-daemon -x test
+
+CMD ["./build/install/java-project-99/bin/java-project-99"]
+
