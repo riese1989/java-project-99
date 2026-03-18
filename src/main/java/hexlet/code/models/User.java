@@ -1,5 +1,6 @@
 package hexlet.code.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Data
 @EqualsAndHashCode
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements BaseEntity {
 
     @Id
