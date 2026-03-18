@@ -35,4 +35,5 @@ public class TaskServiceImpl extends AbstractCrudService<TaskRequestDto, TaskRes
 
         return tasks.stream().map(this::convertToResponseDto).toList();
     }
+
 }

@@ -32,7 +32,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
+    @PreAuthorize("#name == authentication.name or hasRole('ADMIN')")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponseDto getUserById(@PathVariable final Long id) {
@@ -65,7 +65,7 @@ public class UserController {
         return userService.update(user);
     }
 
-    @PreAuthorize("#email == authentication.name or hasRole('ADMIN')")
+    @PreAuthorize("#name == authentication.name or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(NO_CONTENT)
     public void deleteUser(@PathVariable final Long id) {

@@ -65,6 +65,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
